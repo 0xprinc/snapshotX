@@ -1,6 +1,6 @@
 {
-  "name": "@inco-network/fhevm-hardhat-template",
-  "description": "fhEVM hardhat template",
+  "name": "@inco-network/hardhat-inco-bridge-template",
+  "description": "hardhat template for bridge contract deployment",
   "version": "1.0.0",
   "author": {
     "name": "inco-network",
