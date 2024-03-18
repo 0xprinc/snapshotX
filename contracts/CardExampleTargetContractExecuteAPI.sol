@@ -35,7 +35,7 @@ contract Card is BridgeContract {
     }
 
     function cardReceive(uint256 user, uint8 _card) external {
-        //require(caller_contract == msg.sender, "not right caller contract");
+        require(caller_contract == msg.sender, "not right caller contract");
         Cards[address(uint160(user))] = _card;
     }
 
