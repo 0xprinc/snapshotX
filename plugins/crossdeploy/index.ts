@@ -91,7 +91,7 @@ task(
 
       {
         console.info("Setting owner for target chain contract...");
-        const tx = await otherContractInstance.setCallerContract(await incoContractInstance.getICA());
+        const tx = await otherContractInstance.setCallerContract(targetNetwork.interchainExecuteRouterAddress);
         await tx.wait();
       }
 
