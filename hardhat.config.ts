@@ -6,8 +6,7 @@ import type { NetworkUserConfig } from "hardhat/types";
 import { resolve } from "path";
 
 import "./plugins/crossdeploy";
-
-import { networks } from "./plugins/crossdeploy/networks"
+import { networks } from "./plugins/crossdeploy/networks";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
@@ -29,11 +28,10 @@ const chainIds = {
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
   let jsonRpcUrl: string;
   switch (chain) {
-    
     case "local":
       jsonRpcUrl = "http://localhost:8545";
       break;
-    
+
     case "inco":
       jsonRpcUrl = networks.inco.rpcUrl;
       break;
@@ -86,16 +84,7 @@ const config: HardhatUserConfig = {
     tests: "./test",
   },
   solidity: {
-    //version: "0.8.22",
-    compilers: [
-      {
-        version: "0.8.22",
-      },
-      {
-        version: "0.8.19",
-        settings: {},
-      },
-    ],
+    version: "0.8.20",
     settings: {
       metadata: {
         // Not including the metadata hash
@@ -106,7 +95,7 @@ const config: HardhatUserConfig = {
       // https://hardhat.org/hardhat-network/#solidity-optimizer-support
       optimizer: {
         enabled: true,
-        runs: 800,
+        runs: 300,
       },
     },
   },
@@ -115,9 +104,12 @@ const config: HardhatUserConfig = {
     target: "ethers-v6",
   },
   crossdeploy: {
-    contracts:  ["HiddenCard", "Card"],
+    // contracts: ["Card", "HiddenCard"],
+    contracts: ["HiddenCard", "Card"],
     signer: process.env.PRIVATE_KEY || "",
-  }
+  },
 };
 
 export default config;
+
+// redstone

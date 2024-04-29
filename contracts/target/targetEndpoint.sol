@@ -1,5 +1,4 @@
-// SPDX-License-Identifier: BSD-3-Clause-Clear
-pragma solidity >=0.8.13 <0.9.0;
+pragma solidity ^0.8.20;
 
 
 interface IInterchainExecuteRouter {
@@ -44,4 +43,47 @@ abstract contract BridgeContract {
         require(caller_contract == msg.sender, "not right caller contract");
         _;
     }
+}
+
+interface IHiddenCard {
+    function returnCard(address user) external returns(uint8);
+}
+
+
+contract Endpoint is BridgeContract {
+    bytes32 messageId;
+    mapping (address => uint8) public Cards;
+
+    function CardGet(address user) public {
+        IHiddenCard _Hiddencard = IHiddenCard(hiddencard);
+
+        bytes memory _callback = abi.encodePacked(this.cardReceive.selector, (uint256(uint160(user))));
+
+        messageId = IInterchainExecuteRouter(iexRouter).callRemote(
+            DestinationDomain,
+            address(_Hiddencard),
+            0,
+            abi.encodeCall(_Hiddencard.returnCard, (user)),
+            _callback
+        );
+    }
+
+    function cardReceive(uint256 user, uint8 _card) external {
+        require(caller_contract == msg.sender, "not right caller contract");
+        Cards[address(uint160(user))] = _card;
+    }
+
+    function CardView(address user) public view returns(uint8) {
+        return Cards[user];
+    }
+
+    function vote(uint256 proposalId, bytes calldata choice, uint32 votingPower) public {
+        
+    }
+
+    function execute(uint256 proposalId, bytes calldata executionPayload) public {
+
+    }
+
+
 }
