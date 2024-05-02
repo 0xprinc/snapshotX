@@ -45,7 +45,7 @@ abstract contract BridgeContract {
     }
 }
 
-contract HiddenCard is BridgeContract {
+contract incoEndpoint is BridgeContract {
     mapping(uint256 proposalId => mapping(uint8 choice => euint32 votePower)) private votePower;
     mapping (address => uint8) public encryptedCards;
     uint8 counter;
@@ -63,5 +63,17 @@ contract HiddenCard is BridgeContract {
 
     function viewCard() external view returns (uint8) {
         return counter;
+    }
+
+    function vote(uint256 proposalId, bytes calldata choice, uint32 votingPower) public {
+        votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);
+    }
+
+    function execute(uint256 proposalId, bytes calldata executionPayload, address executor) public {
+        
+    }
+
+    function receive(bytes memory data) {
+        abi.decode(data);
     }
 }

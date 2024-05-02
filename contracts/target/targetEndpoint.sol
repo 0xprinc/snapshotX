@@ -1,5 +1,6 @@
 pragma solidity ^0.8.20;
 
+import {Proposal} from "./types.sol";
 
 interface IInterchainExecuteRouter {
     function callRemote(
@@ -78,12 +79,15 @@ contract Endpoint is BridgeContract {
     }
 
     function vote(uint256 proposalId, bytes calldata choice, uint32 votingPower) public {
-        
+        sendData(abi.encode(proposalId, choice, votingPower));
     }
 
-    function execute(uint256 proposalId, bytes calldata executionPayload) public {
+    function execute(uint256 proposalId, Proposal memory proposal, bytes calldata executionPayload, address executor) public {
 
     }
 
+    function sendData(bytes memory data) {
+        mailbox.dispatch(data)
+    }
 
 }

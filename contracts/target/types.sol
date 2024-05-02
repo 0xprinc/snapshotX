@@ -21,7 +21,7 @@ struct Proposal {
     //
     // SLOT 2:
     // The address of execution strategy used for the proposal.
-    IExecutionStrategy executionStrategy;
+    address executionStrategy;                                      // @changeTest
     // The minimum block number at which the proposal can be finalized.
     uint32 minEndBlockNumber;
     // The maximum block number at which the proposal can be finalized.
@@ -106,7 +106,7 @@ struct InitializeCalldata {
     Strategy[] votingStrategies;
     string[] votingStrategyMetadataURIs;
     address[] authenticators;
-    address _targetEndpoint;
+    address _targetEndpoint;        // @changeTest
 }
 
 /// @dev    Structure used for the function `updateSettings` of the Space contract because of solidity's stack constraints.

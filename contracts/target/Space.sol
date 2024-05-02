@@ -233,7 +233,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
         Proposal memory proposal = Proposal(
             author,
             startBlockNumber,
-            IExecutionStrategy(executionStrategy.addr),
+            executionStrategy.addr,
             minEndBlockNumber,
             maxEndBlockNumber,
             FinalizationStatus.Pending,
@@ -317,7 +317,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
         //     executionPayload
         // );
 
-        targetEndpoint.execute(proposalId, executionPayload);
+        targetEndpoint.execute(proposalId, cachedProposal, executionPayload, proposal.executionStrategy);
 
         emit ProposalExecuted(proposalId);
     }
@@ -345,7 +345,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
         if (block.number >= proposal.startBlockNumber) revert VotingDelayHasPassed();
 
         proposal.executionPayloadHash = keccak256(executionStrategy.params);
-        proposal.executionStrategy = IExecutionStrategy(executionStrategy.addr);
+        proposal.executionStrategy = executionStrategy.addr;
 
         emit ProposalUpdated(proposalId, executionStrategy, metadataURI);
     }

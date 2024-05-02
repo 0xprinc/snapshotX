@@ -74,7 +74,7 @@ interface ISpaceState {
         returns (
             address author,
             uint32 startBlockNumber,
-            IExecutionStrategy executionStrategy,
+            address executionStrategy,
             uint32 minEndBlockNumber,
             uint32 maxEndBlockNumber,
             FinalizationStatus finalizationStatus,

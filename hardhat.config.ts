@@ -105,7 +105,7 @@ const config: HardhatUserConfig = {
   },
   crossdeploy: {
     // contracts: ["Card", "HiddenCard"],
-    contracts: ["HiddenCard", "Card"],
+    contracts: ["incoEndpoint", "Endpoint"],
     signer: process.env.PRIVATE_KEY || "",
   },
 };
