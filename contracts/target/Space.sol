@@ -25,7 +25,7 @@ import { IExecutionStrategy } from "./interfaces/IExecutionStrategy.sol";
 import { IProposalValidationStrategy } from "./interfaces/IProposalValidationStrategy.sol";
 import { SXUtils } from "./utils/SXUtils.sol";
 import { BitPacker } from "./utils/BitPacker.sol";
-import { Endpoint } from "./targetEndpoint.sol";
+import { TargetContract } from "./targetEndpoint.sol";
 // import "fhevm/lib/TFHE.sol";
 
 /// @title Space Contract
@@ -74,7 +74,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
     /// @inheritdoc ISpaceState
     mapping(uint256 proposalId => mapping(address voter => uint256 hasVoted)) public override voteRegistry;
     
-    Endpoint public targetEndpoint;
+    TargetContract public targetEndpoint;
 
     /// @inheritdoc ISpaceActions
     function initialize(InitializeCalldata calldata input) external override initializer {
@@ -91,7 +91,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
         _setVotingDelay(input.votingDelay);
         _addVotingStrategies(input.votingStrategies);
         _addAuthenticators(input.authenticators);
-        targetEndpoint = Endpoint(input._targetEndpoint);
+        targetEndpoint = TargetContract(input._targetEndpoint);
 
         nextProposalId = 1;
 

@@ -1,93 +1,77 @@
-pragma solidity ^0.8.20;
+pragma solidity 0.8.20;
 
+import {IMailbox} from "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
+// import {IPostDispatchHook} from ".deps/npm/@hyperlane-xyz/core/contracts/interfaces/hooks/IPostDispatchHook.sol";
+import {IInterchainSecurityModule} from "@hyperlane-xyz/core/contracts/interfaces/IInterchainSecurityModule.sol";
 import {Proposal} from "./types.sol";
 
-interface IInterchainExecuteRouter {
-    function callRemote(
-        uint32 _destination,
-        address _to,
-        uint256 _value,
-        bytes calldata _data,
-        bytes memory _callback
-    ) external returns (bytes32);
+contract TargetContract {
+    address public mailbox = 0x46e7416C63E71E8EA0f99A7F5033E6263c6e5138;
+    address public lastSender;
+    bytes public lastData;
+    uint32 public domainId = 9090;
+    address public destinationContract;
+    event ReceivedMessage(uint32, bytes32, uint256, string);
+    bytes constant public body = bytes("Hello, world");
 
-    function getRemoteInterchainAccount(uint32 _destination, address _owner) external view returns (address);
-}
 
-abstract contract BridgeContract {
-    uint32 DestinationDomain;
-    // HiddenCard contract in Inco Network
-    address hiddencard;
-    // InterchainExcuteRouter contract address in current chain
-    address iexRouter;
-    address caller_contract;
-    bool public isInitialized;
+    // IPostDispatchHook public hook;
+    IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x71b6fdF09C772F2ED28B15059Bd104f4c282290f);
 
-    function initialize(uint32 _DestinationDomain, address _hiddencard, address _iexRouter) public {
-        require(isInitialized == false, "Bridge contract already initialized");
-        DestinationDomain = _DestinationDomain;
-        hiddencard = _hiddencard;
-        iexRouter = _iexRouter;
-        caller_contract = msg.sender;
-        isInitialized = true;
+
+    
+    function setHook(address _hook) public {
+        // hook = IPostDispatchHook(_hook);
     }
 
-    function setCallerContract(address _caller_contract) public {
-        caller_contract = _caller_contract;
+    function initialize(address _destinationContract) public {
+        destinationContract = _destinationContract;
     }
 
-    function getICA() public view returns(address) {
-        return IInterchainExecuteRouter(iexRouter).getRemoteInterchainAccount(DestinationDomain, address(this));
+    function setInterchainSecurityModule(address _module) public {
+        interchainSecurityModule = IInterchainSecurityModule(_module);
     }
 
-    modifier onlyCallerContract() {
-        require(caller_contract == msg.sender, "not right caller contract");
+    // Modifier so that only mailbox can call particular functions
+    modifier onlyMailbox() {
+        require(
+            msg.sender == mailbox,
+            "Only mailbox can call this function !!!"
+        );
         _;
     }
-}
 
-interface IHiddenCard {
-    function returnCard(address user) external returns(uint8);
-}
-
-
-contract Endpoint is BridgeContract {
-    bytes32 messageId;
-    mapping (address => uint8) public Cards;
-
-    function CardGet(address user) public {
-        IHiddenCard _Hiddencard = IHiddenCard(hiddencard);
-
-        bytes memory _callback = abi.encodePacked(this.cardReceive.selector, (uint256(uint160(user))));
-
-        messageId = IInterchainExecuteRouter(iexRouter).callRemote(
-            DestinationDomain,
-            address(_Hiddencard),
-            0,
-            abi.encodeCall(_Hiddencard.returnCard, (user)),
-            _callback
-        );
+    // handle function which is called by the mailbox to bridge votes from other chains
+    function handle(
+        uint32 _origin,
+        bytes32 _sender,
+        bytes calldata _data
+    ) external payable {
+        emit ReceivedMessage(_origin, _sender, msg.value, string(_data));
+        lastSender = bytes32ToAddress(_sender);
+        lastData = _data;
     }
 
-    function cardReceive(uint256 user, uint8 _card) external {
-        require(caller_contract == msg.sender, "not right caller contract");
-        Cards[address(uint160(user))] = _card;
+    // alignment preserving cast
+    function bytes32ToAddress(bytes32 _buf) internal pure returns (address) {
+        return address(uint160(uint256(_buf)));
     }
 
-    function CardView(address user) public view returns(uint8) {
-        return Cards[user];
+    function sendMessage(bytes calldata data) payable external {
+        // uint256 quote = IMailbox(mailbox).quoteDispatch(domainId, addressToBytes32(destinationContract), abi.encode(body));
+        IMailbox(mailbox).dispatch(domainId, addressToBytes32(destinationContract), data);
+    }
+
+    // converts address to bytes32
+    function addressToBytes32(address _addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(_addr)));
     }
 
     function vote(uint256 proposalId, bytes calldata choice, uint32 votingPower) public {
-        sendData(abi.encode(proposalId, choice, votingPower));
+        // sendData(abi.encode(proposalId, choice, votingPower));
     }
 
     function execute(uint256 proposalId, Proposal memory proposal, bytes calldata executionPayload, address executor) public {
 
     }
-
-    function sendData(bytes memory data) {
-        mailbox.dispatch(data)
-    }
-
 }
