@@ -6,6 +6,8 @@ import {IInterchainSecurityModule} from "@hyperlane-xyz/core/contracts/interface
 
 import "fhevm/lib/TFHE.sol";
 
+import {Proposal} from "./types.sol";
+import { IExecutionStrategy } from "./interfaces/IExecutionStrategy.sol";
 
 contract IncoContract {
     address public mailbox = 0x18a2B6a086EE7d4070Cf675BDf27717d03258FcF;
@@ -53,6 +55,14 @@ contract IncoContract {
         emit ReceivedMessage(_origin, _sender, msg.value, string(_data));
         lastSender = bytes32ToAddress(_sender);
         lastData = _data;
+        uint8 selector = abi.decode(_data, (uint8));
+        if (selector == 1) {
+            (uint256 proposalId, uint32 votingPower, bytes memory choice) = abi.decode(_data, (uint256, uint32, bytes));
+            vote(proposalId, votingPower, choice);
+        } else if (selector == 2) {
+            (uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) = abi.decode(_data, (uint256, Proposal  , address , bytes));
+            execute(proposalId, proposal, executor, executionPayload);
+        }
     }
 
     // alignment preserving cast
@@ -60,7 +70,7 @@ contract IncoContract {
         return address(uint160(uint256(_buf)));
     }
 
-    function sendMessage(bytes calldata data) payable external {
+    function sendMessage(bytes calldata data) payable public {
         // uint256 quote = IMailbox(mailbox).quoteDispatch(domainId, addressToBytes32(destinationContract), abi.encode(body));
         IMailbox(mailbox).dispatch(domainId, addressToBytes32(destinationContract), data);
     }
@@ -70,11 +80,18 @@ contract IncoContract {
         return bytes32(uint256(uint160(_addr)));
     }
 
-    function vote(uint256 proposalId, bytes calldata choice, uint32 votingPower) public {
-        // votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);
+    function vote(uint256 proposalId, uint32 votingPower, bytes memory choice) public {
+        votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);
     }
 
-    function execute(uint256 proposalId, bytes calldata executionPayload, address executor) public {
-        
+    function execute(uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) public {
+        IExecutionStrategy(executor).execute(
+            proposalId,
+            proposal,
+            votePower[proposalId][1],
+            votePower[proposalId][0],
+            votePower[proposalId][2],
+            executionPayload
+        );
     }
 }

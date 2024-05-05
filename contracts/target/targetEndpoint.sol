@@ -57,7 +57,9 @@ contract TargetContract {
         return address(uint160(uint256(_buf)));
     }
 
-    function sendMessage(bytes calldata data) payable external {
+    // specifying the function with a uint8
+    // 1 -> vote, 2-> execute
+    function sendMessage(bytes memory data) payable public {
         // uint256 quote = IMailbox(mailbox).quoteDispatch(domainId, addressToBytes32(destinationContract), abi.encode(body));
         IMailbox(mailbox).dispatch(domainId, addressToBytes32(destinationContract), data);
     }
@@ -67,11 +69,13 @@ contract TargetContract {
         return bytes32(uint256(uint160(_addr)));
     }
 
-    function vote(uint256 proposalId, bytes calldata choice, uint32 votingPower) public {
-        // sendData(abi.encode(proposalId, choice, votingPower));
+    function vote(uint256 proposalId, uint32 votingPower, bytes calldata choice) public {
+        bytes memory data = abi.encode(uint8(1), proposalId, votingPower, choice);
+        sendMessage(data);
     }
 
-    function execute(uint256 proposalId, Proposal memory proposal, bytes calldata executionPayload, address executor) public {
-
+    function execute(uint256 proposalId, Proposal memory proposal, address executor, bytes calldata executionPayload) public {
+        bytes memory data = abi.encode(uint8(2), proposalId, proposal, executor, executionPayload);
+        sendMessage(data);
     }
 }
