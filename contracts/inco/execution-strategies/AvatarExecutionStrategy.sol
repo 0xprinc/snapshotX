@@ -6,6 +6,7 @@ import { IAvatar } from "../interfaces/IAvatar.sol";
 import { SimpleQuorumExecutionStrategy } from "./SimpleQuorumExecutionStrategy.sol";
 import { MetaTransaction, Proposal, ProposalStatus } from "../types.sol";
 
+import {IncoContract} from "../incoEndpoint.sol";
 import "fhevm/lib/TFHE.sol";
 
 /// @title Avatar Execution Strategy
@@ -24,15 +25,17 @@ contract AvatarExecutionStrategy is SimpleQuorumExecutionStrategy {
 
     /// @notice Address of the avatar that this module will pass transactions to.
     address public target;
+    IncoContract public incoEndpoint;
 
     /// @notice Constructor
     /// @param _owner Address of the owner of this contract.
     /// @param _target Address of the avatar that this module will pass transactions to.
     /// @param _spaces Array of whitelisted space contracts.
     /// @param _quorum The quorum required to execute a proposal.
-    constructor(address _owner, address _target, address[] memory _spaces, uint256 _quorum) {
+    constructor(address _owner, address _target, address[] memory _spaces, uint256 _quorum, address _incoEndpoint) {
         bytes memory initParams = abi.encode(_owner, _target, _spaces, _quorum);
         setUp(initParams);
+        incoEndpoint = IncoContract(_incoEndpoint);
     }
 
     /// @notice Initialization function, should be called immediately after deploying a new proxy to this contract.

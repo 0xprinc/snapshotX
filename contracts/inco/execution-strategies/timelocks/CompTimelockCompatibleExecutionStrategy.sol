@@ -8,6 +8,7 @@ import { SpaceManager } from "../../utils/SpaceManager.sol";
 import { MetaTransaction, Proposal, ProposalStatus } from "../../types.sol";
 import { Enum } from "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
 
+import {IncoContract} from "../../incoEndpoint.sol";
 import "fhevm/lib/TFHE.sol";
 
 /// @title Comp Timelock Execution Strategy
@@ -46,6 +47,7 @@ contract CompTimelockCompatibleExecutionStrategy is SimpleQuorumExecutionStrateg
 
     /// @notice Veto guardian is given permission to veto any queued proposal.
     address public vetoGuardian;
+    IncoContract public incoEndpoint;
 
     /// @notice The timelock contract.
     ICompTimelock public timelock;
@@ -55,8 +57,9 @@ contract CompTimelockCompatibleExecutionStrategy is SimpleQuorumExecutionStrateg
     /// @param _vetoGuardian Address of the veto guardian.
     /// @param _spaces Array of whitelisted space contracts.
     /// @param _quorum The quorum required to execute a proposal.
-    constructor(address _owner, address _vetoGuardian, address[] memory _spaces, uint256 _quorum, address _timelock) {
+    constructor(address _owner, address _vetoGuardian, address[] memory _spaces, uint256 _quorum, address _timelock, address _incoEndpoint) {
         setUp(abi.encode(_owner, _vetoGuardian, _spaces, _quorum, _timelock));
+        incoEndpoint = IncoContract(_incoEndpoint);
     }
 
     function setUp(bytes memory initializeParams) public initializer {
@@ -130,6 +133,8 @@ contract CompTimelockCompatibleExecutionStrategy is SimpleQuorumExecutionStrateg
             );
             emit TransactionQueued(transactions[i], executionTime);
         }
+
+        // incoEndpoint.CompTimelockCompatibleExecutionStrategy(payload, executionTime);
         emit ProposalQueued(proposal.executionPayloadHash);
     }
 

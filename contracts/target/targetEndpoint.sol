@@ -4,6 +4,7 @@ import {IMailbox} from "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 // import {IPostDispatchHook} from ".deps/npm/@hyperlane-xyz/core/contracts/interfaces/hooks/IPostDispatchHook.sol";
 import {IInterchainSecurityModule} from "@hyperlane-xyz/core/contracts/interfaces/IInterchainSecurityModule.sol";
 import {Proposal} from "./types.sol";
+import {Executor} from "./executors/Executor.sol";
 
 contract TargetContract {
     address public mailbox = 0x46e7416C63E71E8EA0f99A7F5033E6263c6e5138;
@@ -13,6 +14,12 @@ contract TargetContract {
     address public destinationContract;
     event ReceivedMessage(uint32, bytes32, uint256, string);
     bytes constant public body = bytes("Hello, world");
+
+    Executor public executor;
+
+    constructor(address _executor) {
+        executor = Executor(_executor);
+    }
 
 
     // IPostDispatchHook public hook;
@@ -50,6 +57,11 @@ contract TargetContract {
         emit ReceivedMessage(_origin, _sender, msg.value, string(_data));
         lastSender = bytes32ToAddress(_sender);
         lastData = _data;
+        uint8 selector = abi.decode(_data, (uint8));
+        if (selector == 1) {
+            (,address target, bytes memory payload) = abi.decode(_data, (uint8, address, bytes));
+            callExecutor(target, payload);
+        }
     }
 
     // alignment preserving cast
@@ -74,8 +86,12 @@ contract TargetContract {
         sendMessage(data);
     }
 
-    function execute(uint256 proposalId, Proposal memory proposal, address executor, bytes calldata executionPayload) public {
-        bytes memory data = abi.encode(uint8(2), proposalId, proposal, executor, executionPayload);
+    function execute(uint256 proposalId, Proposal memory proposal, address executionStrategy, bytes calldata executionPayload) public {
+        bytes memory data = abi.encode(uint8(2), proposalId, proposal, executionStrategy, executionPayload);
         sendMessage(data);
+    }
+
+    function callExecutor(address target, bytes memory payload) public {
+        executor.AvatarExecutor(target, payload);
     }
 }

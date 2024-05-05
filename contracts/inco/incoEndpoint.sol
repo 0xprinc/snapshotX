@@ -57,10 +57,10 @@ contract IncoContract {
         lastData = _data;
         uint8 selector = abi.decode(_data, (uint8));
         if (selector == 1) {
-            (uint256 proposalId, uint32 votingPower, bytes memory choice) = abi.decode(_data, (uint256, uint32, bytes));
+            (,uint256 proposalId, uint32 votingPower, bytes memory choice) = abi.decode(_data, (uint8, uint256, uint32, bytes));
             vote(proposalId, votingPower, choice);
         } else if (selector == 2) {
-            (uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) = abi.decode(_data, (uint256, Proposal  , address , bytes));
+            (,uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) = abi.decode(_data, (uint8, uint256, Proposal  , address , bytes));
             execute(proposalId, proposal, executor, executionPayload);
         }
     }
@@ -70,7 +70,9 @@ contract IncoContract {
         return address(uint160(uint256(_buf)));
     }
 
-    function sendMessage(bytes calldata data) payable public {
+    // function selector is uint8
+    // 1 -> avatarExecutor
+    function sendMessage(bytes memory data) payable public {
         // uint256 quote = IMailbox(mailbox).quoteDispatch(domainId, addressToBytes32(destinationContract), abi.encode(body));
         IMailbox(mailbox).dispatch(domainId, addressToBytes32(destinationContract), data);
     }
@@ -94,4 +96,10 @@ contract IncoContract {
             executionPayload
         );
     }
+
+    function AvatarExecutionStrategy(address target, bytes memory payload) public {
+        bytes memory data = abi.encode(uint8(1),target, payload);
+        sendMessage(data);
+    }
+
 }

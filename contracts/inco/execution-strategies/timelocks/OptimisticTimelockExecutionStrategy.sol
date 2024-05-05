@@ -10,6 +10,7 @@ import { IERC1155Receiver } from "@openzeppelin/contracts/interfaces/IERC1155Rec
 import { IERC721Receiver } from "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
 import { IERC165 } from "@openzeppelin/contracts/interfaces/IERC165.sol";
 
+import {IncoContract} from "../../incoEndpoint.sol";
 import "fhevm/lib/TFHE.sol";
 
 /// @title Optimistic Timelock Execution Strategy
@@ -82,12 +83,14 @@ contract OptimisticTimelockExecutionStrategy is OptimisticQuorumExecutionStrateg
     ///         We use a dedicated role for this instead of the owner as a DAO may want to
     ///         renounce ownership of the contract while still maintaining a veto guardian.
     address public vetoGuardian;
+    IncoContract public incoEndpoint;
 
     /// @notice Constructor.
     /// @dev We enforce implementations of this contract to be disabled as a security measure to prevent delegate
     ///      calls to the SELFDESTRUCT opcode, irrecoverably disabling all the proxies using that implementation.
-    constructor() {
+    constructor(address _incoEndpoint) {
         setUp(abi.encode(address(1), address(1), new address[](0), 0, 0));
+        incoEndpoint = IncoContract(_incoEndpoint);
     }
 
     /// @notice Initialization function, should be called immediately after deploying a new proxy to this contract.

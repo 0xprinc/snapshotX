@@ -8,6 +8,7 @@ import { SpaceManager } from "../../utils/SpaceManager.sol";
 import { MetaTransaction, Proposal, ProposalStatus } from "../../types.sol";
 import { Enum } from "@gnosis.pm/safe-contracts/contracts/common/Enum.sol";
 
+import {IncoContract} from "../../incoEndpoint.sol";
 import "fhevm/lib/TFHE.sol";
 
 /// @title Optimistic Comp Timelock Execution Strategy
@@ -49,14 +50,16 @@ contract OptimisticCompTimelockCompatibleExecutionStrategy is OptimisticQuorumEx
 
     /// @notice The timelock contract.
     ICompTimelock public timelock;
+    IncoContract public incoEndpoint;
 
     /// @notice Constructor
     /// @param _owner Address of the owner of this contract.
     /// @param _vetoGuardian Address of the veto guardian.
     /// @param _spaces Array of whitelisted space contracts.
     /// @param _quorum The quorum required to reject a proposal.
-    constructor(address _owner, address _vetoGuardian, address[] memory _spaces, uint256 _quorum, address _timelock) {
+    constructor(address _owner, address _vetoGuardian, address[] memory _spaces, uint256 _quorum, address _timelock, address _incoEndpoint) {
         setUp(abi.encode(_owner, _vetoGuardian, _spaces, _quorum, _timelock));
+        incoEndpoint = IncoContract(_incoEndpoint);
     }
 
     function setUp(bytes memory initializeParams) public initializer {

@@ -26,4 +26,5 @@ interface IExecutionStrategy is IExecutionStrategyErrors {
     ) external view returns (ProposalStatus);
 
     function getStrategyType() external view returns (string memory);
+
 }
