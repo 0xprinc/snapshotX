@@ -48,12 +48,3 @@ export async function deployExecutionStrategy(): Promise<VanillaExecutionStrateg
   console.log("deployExecutionStrategy -> " + await contract.getAddress());
   return contract;
 }
-// export async function deployEncryptedERC20Fixture(): Promise<EncryptedERC20> {
-//   const signers = await getSigners(ethers);
-
-//   const contractFactory = await ethers.getContractFactory("EncryptedERC20");
-//   const contract = await contractFactory.connect(signers.alice).deploy();
-//   await contract.waitForDeployment();
-
-//   return contract;
-// }

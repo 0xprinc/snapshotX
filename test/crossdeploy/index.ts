@@ -35,7 +35,7 @@ task(
     console.info("Deploying to:", hre.network.name);
 
     const incoNetwork: Network = networks["inco"] as Network;
-    const targetNetwork: Network = networks[hre.network.name as keyof typeof networks] as Network;
+    const targetNetwork: Network = networks["redstone"] as Network;
     const nets = [incoNetwork, targetNetwork];
     
     [0, 1].map((i) => {
