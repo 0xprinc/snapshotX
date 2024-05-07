@@ -211,7 +211,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
     function propose(
         address author,
         string calldata metadataURI,
-        Strategy calldata executionStrategy,
+        Strategy calldata executionStrategy,                // this address is to be in 
         bytes calldata userProposalValidationParams
     ) external override onlyAuthenticator {
         if (

@@ -5,8 +5,8 @@ import type { HardhatUserConfig } from "hardhat/config";
 import type { NetworkUserConfig } from "hardhat/types";
 import { resolve } from "path";
 
-import "./test/crossdeploy";
-import { networks } from "./test/crossdeploy/networks";
+import "./plugins/crossdeploy";
+import { networks } from "./plugins/crossdeploy/networks";
 
 const dotenvConfigPath: string = process.env.DOTENV_CONFIG_PATH || "./.env";
 dotenvConfig({ path: resolve(__dirname, dotenvConfigPath) });
@@ -104,8 +104,15 @@ const config: HardhatUserConfig = {
     target: "ethers-v6",
   },
   crossdeploy: {
-    // contracts: ["Card", "HiddenCard"],
-    contracts: ["incoEndpoint", "Endpoint"],
+    contracts: [
+      "IncoContract",
+      "TargetContract",
+      "Space",
+      "VanillaAuthenticator",
+      "VanillaProposalValidationStrategy",
+      "VanillaVotingStrategy",
+      "VanillaExecutionStrategy",
+    ],
     signer: process.env.PRIVATE_KEY || "",
   },
 };

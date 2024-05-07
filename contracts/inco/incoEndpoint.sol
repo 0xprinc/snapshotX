@@ -80,6 +80,10 @@ contract IncoContract {
         return bytes32(uint256(uint160(_addr)));
     }
 
+    function getVotePower(uint256 proposalId, uint8 choice, bytes32 publicKey) public view returns (bytes memory) {             // @inco
+        return TFHE.reencrypt(votePower[proposalId][choice], publicKey, 0);
+    }
+
     function vote(uint256 proposalId, uint32 votingPower, bytes memory choice) public {
         votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);
     }
