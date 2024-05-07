@@ -93,6 +93,11 @@ task(
       await incoContractInstance.waitForDeployment();
       console.info("IncoContract -> ", incoContractAddr);
 
+      let defaultsigners = await getSigners(hre.ethers);
+      // console.log("default signers -> " + defaultsigners.alice.address);
+      let fhevmInstance = await createInstances(incoContractAddr, hre.ethers, defaultsigners);
+      // console.log("fhevmInstance -> " + fhevmInstance);
+
       const VanillaExecutionStrategyInstance: any = await VanillaExecutionStrategy.connect(signers[0]).deploy(signers[0].address, 1);   // random address as the address is of no use during testing
       const VanillaExecutionStrategyAddr = await VanillaExecutionStrategyInstance.getAddress();
       await VanillaExecutionStrategyInstance.waitForDeployment();
@@ -125,9 +130,10 @@ task(
       await VanillaVotingStrategyInstance.waitForDeployment();
       console.info("VanillaVotingStrategy -> ", VanillaVotingStrategyAddr);
 
-      let defaultsigners = await getSigners(hre.ethers);
-      let fhevmInstance = await createInstances(incoContractAddr, hre.ethers, defaultsigners);
-      console.log("fhevmInstance -> " + fhevmInstance);
+      // let defaultsigners = await getSigners(hre.ethers);
+      // console.log("default signers -> " + defaultsigners.alice.address);
+      // let fhevmInstance = await createInstances(incoContractAddr, hre.ethers, defaultsigners);
+      // console.log("fhevmInstance -> " + fhevmInstance);
 
     {
         console.log("\ninitializing Space contract \n");
@@ -172,7 +178,7 @@ task(
         // console.log("alice address -> " + addressSigner);
         // console.log("owner after initialize: " + await contractSpace.owner());
         // assert(addressSigner == contractSpace.owner());
-        console.log("space maxVotingDuration" + SpaceInstance.maxVotingDuration());
+        console.log("space maxVotingDuration" + await SpaceInstance.maxVotingDuration());
     
     }
 
@@ -236,105 +242,108 @@ task(
 
   }
 
-//   {
-//     console.log("\n voting \n");
+  {
+    console.log("\n voting \n");
 
-//     let defaultSigners = await hre.ethers.getSigners();
-//     // console.log("default signers -> " + await defaultSigners[0].address);
+    let defaultSigners = await hre.ethers.getSigners();
+    // console.log("default signers -> " + await defaultSigners[0].address);
 
-//     let data2voteAbstain = [
-//       await defaultSigners[0].address,
-//       1,
-//       fhevmInstance.alice.encrypt8(2),
-//       [[0,"0x"]],
-//       ""
-//     ];
-//     let data2voteFor1 = [
-//       await defaultSigners[1].address,
-//       1,
-//       fhevmInstance.alice.encrypt8(1),
-//       [[0,"0x"]],
-//       ""
-//     ];
-//     let data2voteFor2 = [
-//       await defaultSigners[2].address,
-//       1,
-//       fhevmInstance.alice.encrypt8(1),
-//       [[0,"0x"]],
-//       ""
-//     ];
-//     let data2voteAgainst = [
-//       await defaultSigners[3].address,
-//       1,
-//       fhevmInstance.alice.encrypt8(0),
-//       [[0,"0x"]],
-//       ""
-//     ];
-//     // console.log("votePower before vote -> " + (await contractSpace.votePower(1, 2)).toString());
-//     console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
-//     try {
-//       const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAgainst));
-//       console.log("Transaction hash:", txn.hash);
+    let data2voteAbstain = [
+      await defaultSigners[0].address,
+      1,
+      fhevmInstance.alice.encrypt8(2),
+      [[0,"0x"]],
+      ""
+    ];
 
-//       // Wait for 1 confirmation (adjust confirmations as needed)
-//       await txn.wait(1);
-//       console.log("Against successful!");
-//     } catch (error) {
-//       console.error("Transaction failed:", error);
-//       // Handle the error appropriately (e.g., retry, notify user)
-//     }
-//     try {
-//       const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor1));
-//       console.log("Transaction hash:", txn.hash);
+    console.log("data to vote -> " + data2voteAbstain);
 
-//       // Wait for 1 confirmation (adjust confirmations as needed)
-//       await txn.wait(1);
-//       console.log("For1 successful!");
-//     } catch (error) {
-//       console.error("Transaction failed:", error);
-//       // Handle the error appropriately (e.g., retry, notify user)
-//     }
-//     try {
-//       const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor2));
-//       console.log("Transaction hash:", txn.hash);
+    let data2voteFor1 = [
+      await defaultSigners[1].address,
+      1,
+      fhevmInstance.alice.encrypt8(1),
+      [[0,"0x"]],
+      ""
+    ];
+    let data2voteFor2 = [
+      await defaultSigners[2].address,
+      1,
+      fhevmInstance.alice.encrypt8(1),
+      [[0,"0x"]],
+      ""
+    ];
+    let data2voteAgainst = [
+      await defaultSigners[3].address,
+      1,
+      fhevmInstance.alice.encrypt8(0),
+      [[0,"0x"]],
+      ""
+    ];
+    // console.log("votePower before vote -> " + (await contractSpace.votePower(1, 2)).toString());
+    console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
+    try {
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAgainst));
+      console.log("Transaction hash:", txn.hash);
 
-//       // Wait for 1 confirmation (adjust confirmations as needed)
-//       await txn.wait(1);
-//       console.log("For2 successful!");
-//     } catch (error) {
-//       console.error("Transaction failed:", error);
-//       // Handle the error appropriately (e.g., retry, notify user)
-//     }
-//     try {
-//       const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAbstain));
-//       console.log("Transaction hash:", txn.hash);
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("Against successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+    try {
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor1));
+      console.log("Transaction hash:", txn.hash);
 
-//       // Wait for 1 confirmation (adjust confirmations as needed)
-//       await txn.wait(1);
-//       console.log("Abstain successful!");
-//     } catch (error) {
-//       console.error("Transaction failed:", error);
-//       // Handle the error appropriately (e.g., retry, notify user)
-//     }
-//     console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("For1 successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+    try {
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor2));
+      console.log("Transaction hash:", txn.hash);
+
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("For2 successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+    try {
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAbstain));
+      console.log("Transaction hash:", txn.hash);
+
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("Abstain successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+    console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
 
 
-//     const token = fhevmInstance.alice.getTokenSignature(SpaceAddr) || {
-//       signature: "",
-//       publicKey: "",
-//     };
+    const token = fhevmInstance.alice.getTokenSignature(SpaceAddr) || {
+      signature: "",
+      publicKey: "",
+    };
 
-//     let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
-//     let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
-//     let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
-//     console.log(For_votes);
-//     console.log(Abstain_votes);
-//     console.log(Against_votes);
+    let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
+    let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
+    let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
+    console.log(For_votes);
+    console.log(Abstain_votes);
+    console.log(Against_votes);
     
-//     console.log("For votes -> " +     fhevmInstance.alice.decrypt(SpaceAddr, For_votes));
-//     console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(SpaceAddr, Abstain_votes));
-//     console.log("Against votes -> " + fhevmInstance.alice.decrypt(SpaceAddr, Against_votes));
-// }
+    console.log("For votes -> " +     fhevmInstance.alice.decrypt(SpaceAddr, For_votes));
+    console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(SpaceAddr, Abstain_votes));
+    console.log("Against votes -> " + fhevmInstance.alice.decrypt(SpaceAddr, Against_votes));
+}
 
     } catch (err) {
       console.error(err);

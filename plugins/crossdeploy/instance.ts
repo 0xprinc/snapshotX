@@ -1,7 +1,8 @@
 import { Signer } from "ethers";
 import fhevmjs, { FhevmInstance } from "fhevmjs";
 import { ethers as hethers } from "hardhat";
-
+import { networks, Network } from "./networks";
+import { ethers } from "hardhat";
 import { FHE_LIB_ADDRESS } from "./generated";
 import type { Signers } from "./signers";
 import { FhevmInstances } from "./types";
@@ -16,19 +17,31 @@ export const createInstances = async (
 ): Promise<FhevmInstances> => {
   if (!publicKey || !chainId) {
     // 1. Get chain id
-    const provider = ethers.provider;
+    const incoNetwork: Network = networks["inco"] as Network;
 
-    const network = await provider.getNetwork();
-    chainId = +network.chainId.toString(); // Need to be a number
+    const providers = new ethers.JsonRpcProvider(incoNetwork.rpcUrl,);
+    // const provider = ethers.provider;
+    // console.log("provider - " + provider);
+
+    // const network = await provider.getNetwork();
+    // chainId = +network.chainId.toString(); // Need to be a number
+
+    chainId = 9090; // Need to be a number
+    // console.log("chainId - " + chainId);
 
     // Get blockchain public key
-    const ret = await provider.call({
+    const ret = await providers.call({
       to: FHE_LIB_ADDRESS,
       // first four bytes of keccak256('fhePubKey(bytes1)') + 1 byte for library
       data: "0xd9d47bb001",
     });
+
+    // console.log("instance ret - " + ret);
+
+    // console.log("instance ret - " + ret);
     const decoded = ethers.AbiCoder.defaultAbiCoder().decode(["bytes"], ret);
     publicKey = decoded[0];
+    // console.log("instance public key - " + publicKey);
   }
 
   // Create instance

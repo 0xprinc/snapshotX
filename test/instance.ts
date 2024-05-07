@@ -14,12 +14,15 @@ export const createInstances = async (
   ethers: typeof hethers,
   accounts: Signers,
 ): Promise<FhevmInstances> => {
+  console.log("instance public key - " + publicKey);
+  console.log("instance chain id - " + chainId);
   if (!publicKey || !chainId) {
     // 1. Get chain id
     const provider = ethers.provider;
 
     const network = await provider.getNetwork();
-    chainId = +network.chainId.toString(); // Need to be a number
+    // chainId = +network.chainId.toString(); // Need to be a number
+    chainId = 9090; // Need to be a number
 
     // Get blockchain public key
     const ret = await provider.call({
@@ -27,8 +30,11 @@ export const createInstances = async (
       // first four bytes of keccak256('fhePubKey(bytes1)') + 1 byte for library
       data: "0xd9d47bb001",
     });
+
+    // console.log("instance ret - " + ret);
     const decoded = ethers.AbiCoder.defaultAbiCoder().decode(["bytes"], ret);
     publicKey = decoded[0];
+    console.log("instance public key - " + publicKey);
   }
 
   // Create instance
