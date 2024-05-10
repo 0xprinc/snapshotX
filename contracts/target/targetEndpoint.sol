@@ -69,7 +69,7 @@ contract TargetContract {
         return bytes32(uint256(uint160(_addr)));
     }
 
-    function vote(uint256 proposalId, uint32 votingPower, bytes calldata choice) public {
+    function vote(uint256 proposalId, uint32 votingPower, bytes32 choice) public {
         bytes memory data = abi.encode(uint8(1), proposalId, votingPower, choice);
         sendMessage(data);
     }
