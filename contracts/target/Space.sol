@@ -182,7 +182,30 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
         _;
     }
 
+    // ------------------------------------
+    // |                                  |
+    // |             GETTERS              |
+    // |                                  |
+    // ------------------------------------
     // For = 1, Against = 0, Abstain = 2
+    
+    // function getProposalStatus(uint256 proposalId) external view override returns (ProposalStatus) {            // @inco
+    //     Proposal memory proposal = proposals[proposalId];
+    //     _assertProposalExists(proposal);
+    //     return
+    //         proposal.executionStrategy.getProposalStatus(//@votePower
+    //             proposal,
+    //             votePower[proposalId][1],
+    //             votePower[proposalId][0],
+    //             votePower[proposalId][2]
+    //         );
+    // }
+
+    // ------------------------------------
+    // |                                  |
+    // |             CORE                 |
+    // |                                  |
+    // ------------------------------------
 
     /// @inheritdoc ISpaceActions
     function propose(
@@ -229,8 +252,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
     function vote(              // @inco
         address voter,
         uint256 proposalId,
-        // bytes calldata choice,
-        bytes32 choiceHash,
+        bytes calldata choice,
         IndexedStrategy[] calldata userVotingStrategies,
         string calldata metadataURI
     ) external override onlyAuthenticator {
@@ -255,12 +277,12 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
 
 
         if (bytes(metadataURI).length == 0) {
-            emit VoteCast(proposalId, voter, choiceHash, votingPower);  //@votePower
+            emit VoteCast(proposalId, voter, choice, votingPower);  //@votePower
         } else {
-            emit VoteCastWithMetadata(proposalId, voter, choiceHash, votingPower, metadataURI); //@votePower
+            emit VoteCastWithMetadata(proposalId, voter, choice, votingPower, metadataURI); //@votePower
         }
 
-        targetEndpoint.vote(proposalId, votingPower, choiceHash);
+        targetEndpoint.vote(proposalId, votingPower, choice);
         //method 1
         // votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);  // tbc 
 

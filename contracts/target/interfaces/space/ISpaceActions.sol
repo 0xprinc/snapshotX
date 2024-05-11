@@ -43,7 +43,7 @@ interface ISpaceActions {
     /// @notice  Casts a vote.
     /// @param   voter  The voter's address.
     /// @param   proposalId  The proposal id.
-    /// @param   choiceHash  The vote choice  (`For`, `Against`, `Abstain`).
+    /// @param   choice  The vote choice  (`For`, `Against`, `Abstain`).
     /// @param   userVotingStrategies  The strategies to use to compute the voter's voting power,
     ///          each consisting of a strategy index and an array of user provided parameters.
     /// @param   metadataURI  An optional metadata to give information about the vote.
@@ -57,7 +57,7 @@ interface ISpaceActions {
     function vote(
         address voter,
         uint256 proposalId,
-        bytes32 choiceHash,
+        bytes calldata choice,
         IndexedStrategy[] calldata userVotingStrategies,
         string calldata metadataURI
     ) external;

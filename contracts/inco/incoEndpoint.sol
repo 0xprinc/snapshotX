@@ -17,14 +17,7 @@ contract IncoContract {
     address public destinationContract;
     event ReceivedMessage(uint32, bytes32, uint256, string);
 
-    struct choiceData {
-        uint256 proposalId;
-        uint32 votingPower;
-    }
-
     mapping(uint256 proposalId => mapping(uint8 choice => euint32 votePower)) private votePower;
-    mapping(bytes32 => bool[2]) public collectChoiceHashStatus;   // [bool(exists or not), bool(used one time or not)]
-    mapping(bytes32 => choiceData) public collectChoiceData;
 
 
     // IPostDispatchHook public hook;
@@ -64,10 +57,8 @@ contract IncoContract {
         lastData = _data;
         uint8 selector = abi.decode(_data, (uint8));
         if (selector == 1) {
-            (uint256 proposalId, uint32 votingPower, bytes32 choiceHash) = abi.decode(_data, (uint256, uint32, bytes32));
-            require(collectChoiceHashStatus[choiceHash][0]!= true);
-            collectChoiceHashStatus[choiceHash] = [true, false];
-            collectChoiceData[choiceHash] = choiceData(proposalId, votingPower);
+            (uint256 proposalId, uint32 votingPower, bytes memory choice) = abi.decode(_data, (uint256, uint32, bytes));
+            vote(proposalId, votingPower, choice);
         } else if (selector == 2) {
             (uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) = abi.decode(_data, (uint256, Proposal  , address , bytes));
             execute(proposalId, proposal, executor, executionPayload);
@@ -93,12 +84,7 @@ contract IncoContract {
         return TFHE.reencrypt(votePower[proposalId][choice], publicKey, 0);
     }
 
-    function vote(bytes32 choiceHash, bytes memory choice) public {
-        require(keccak256(choice) == bytes32(choiceHash));
-        bool[2] memory status = collectChoiceHashStatus[choiceHash];
-        require(status[0] == true && status[1] == false);
-        uint256 proposalId = collectChoiceData[choiceHash].proposalId;
-        uint32 votingPower = collectChoiceData[choiceHash].votingPower;
+    function vote(uint256 proposalId, uint32 votingPower, bytes memory choice) public {
         votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);
     }
 
