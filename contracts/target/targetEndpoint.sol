@@ -6,17 +6,19 @@ import {IInterchainSecurityModule} from "@hyperlane-xyz/core/contracts/interface
 import {Proposal} from "./types.sol";
 
 contract TargetContract {
-    address public mailbox = 0x46e7416C63E71E8EA0f99A7F5033E6263c6e5138;
+    address public mailbox = 0xb913d201Ac32954053E8828C2A94Fe32fe8c2394;
     address public lastSender;
     bytes public lastData;
     uint32 public domainId = 9090;
     address public destinationContract;
     event ReceivedMessage(uint32, bytes32, uint256, string);
-    bytes constant public body = bytes("Hello, world");
+
+    uint256 public counter;
+    bytes public sentData;
 
 
     // IPostDispatchHook public hook;
-    IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x71b6fdF09C772F2ED28B15059Bd104f4c282290f);
+    // IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x71b6fdF09C772F2ED28B15059Bd104f4c282290f);
 
 
     
@@ -28,9 +30,9 @@ contract TargetContract {
         destinationContract = _destinationContract;
     }
 
-    function setInterchainSecurityModule(address _module) public {
-        interchainSecurityModule = IInterchainSecurityModule(_module);
-    }
+    // function setInterchainSecurityModule(address _module) public {
+    //     interchainSecurityModule = IInterchainSecurityModule(_module);
+    // }
 
     // Modifier so that only mailbox can call particular functions
     modifier onlyMailbox() {
@@ -60,7 +62,8 @@ contract TargetContract {
     // specifying the function with a uint8
     // 1 -> vote, 2-> execute
     function sendMessage(bytes memory data) payable public {
-        // uint256 quote = IMailbox(mailbox).quoteDispatch(domainId, addressToBytes32(destinationContract), abi.encode(body));
+        counter++;
+        sentData = data;
         IMailbox(mailbox).dispatch(domainId, addressToBytes32(destinationContract), data);
     }
 

@@ -10,10 +10,12 @@ import {Proposal} from "./types.sol";
 import { IExecutionStrategy } from "./interfaces/IExecutionStrategy.sol";
 
 contract IncoContract {
-    address public mailbox = 0x18a2B6a086EE7d4070Cf675BDf27717d03258FcF;
+    address public mailbox = 0x553422bAFC9e90d187aF74907B3DaeCf4bd25A69;
     address public lastSender;
     bytes public lastData;
+    uint public received;
     uint32 public domainId = 17001;
+
     address public destinationContract;
     event ReceivedMessage(uint32, bytes32, uint256, string);
 
@@ -21,7 +23,7 @@ contract IncoContract {
 
 
     // IPostDispatchHook public hook;
-    IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x79411A19a8722Dd3D4DbcB0def6d10783237adad);
+    // IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x79411A19a8722Dd3D4DbcB0def6d10783237adad);
 
 
     
@@ -33,8 +35,12 @@ contract IncoContract {
         destinationContract = _destinationContract;
     }
 
-    function setInterchainSecurityModule(address _module) public {
-        interchainSecurityModule = IInterchainSecurityModule(_module);
+    // function setInterchainSecurityModule(address _module) public {
+    //     interchainSecurityModule = IInterchainSecurityModule(_module);
+    // }
+
+    function aggregatedVotes(uint256 proposalId) public view returns (uint256 votesFor, uint256 votesAgainst, uint256 votesAbstain) {
+        return (TFHE.decrypt(votePower[proposalId][1]), TFHE.decrypt(votePower[proposalId][0]), TFHE.decrypt(votePower[proposalId][2]));
     }
 
     // Modifier so that only mailbox can call particular functions
@@ -55,6 +61,7 @@ contract IncoContract {
         emit ReceivedMessage(_origin, _sender, msg.value, string(_data));
         lastSender = bytes32ToAddress(_sender);
         lastData = _data;
+        received++;
         uint8 selector = abi.decode(_data, (uint8));
         if (selector == 1) {
             (uint256 proposalId, uint32 votingPower, bytes memory choice) = abi.decode(_data, (uint256, uint32, bytes));

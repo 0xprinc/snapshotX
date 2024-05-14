@@ -217,22 +217,22 @@ describe("Space", function () {
 // }
 
 
-    // console.log("current block number -> " + await ethers.provider.getBlockNumber());
-    // console.log("\n\n\n\n execution \n");
-    // let executionPayload = "0x";
-    // try {
-    //   const txn = await contractSpace.execute(1, executionPayload);
-    //   console.log("Transaction hash:", txn.hash);
+    console.log("current block number -> " + await ethers.provider.getBlockNumber());
+    console.log("\n\n\n\n execution \n");
+    let executionPayload = "0x";
+    try {
+      const txn = await contractSpace.execute(1, executionPayload);
+      console.log("Transaction hash:", txn.hash);
 
-    //   // Wait for 1 confirmation (adjust confirmations as needed)
-    //   await txn.wait(1);
-    //   console.log("execution successful!");
-    // } catch (error) {
-    //   console.error("Transaction failed:", error);
-    //   // Handle the error appropriately (e.g., retry, notify user)
-    // }
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("execution successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
     
-    // console.log("1 if executed -> " + (await contractSpace.proposals(1)).finalizationStatus);
+    console.log("1 if executed -> " + (await contractSpace.proposals(1)).finalizationStatus);
   });
 
 });
