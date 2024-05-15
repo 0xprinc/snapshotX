@@ -23,9 +23,14 @@ contract IncoContract {
         uint32 votingPower;
     }
 
-    mapping(uint256 proposalId => mapping(uint8 choice => euint32 votePower)) private votePower;
+    mapping(uint256 proposalId => mapping(uint8 choice => euint32 votePower)) public votePower;     // should be made private
     mapping(bytes => bool[2]) public collectChoiceHashStatus;   // [bool(exists or not), bool(used one time or not)]
     mapping(bytes => choiceData) public collectChoiceData;
+    mapping(uint256 proposalId => bool) public isExecuted;
+
+    function getIsExecuted(uint256 proposalId) public view returns(bool){
+        return isExecuted[proposalId];
+    }
 
 
     // IPostDispatchHook public hook;
@@ -107,6 +112,7 @@ contract IncoContract {
         uint256 proposalId = collectChoiceData[choiceHash].proposalId;
         uint32 votingPower = collectChoiceData[choiceHash].votingPower;
         votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);
+        collectChoiceHashStatus[choiceHash] = [true, true];
     }
 
     function execute(uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) public {
@@ -118,5 +124,7 @@ contract IncoContract {
             votePower[proposalId][2],
             executionPayload
         );
+
+        isExecuted[proposalId] = true;
     }
 }

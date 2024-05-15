@@ -372,6 +372,8 @@ task(
       publicKey: "",
     };
 
+    console.log(token.publicKey);
+
     try {
       const txn = await incoContractInstance.vote(eChoiceAbstainHash, eChoiceAbstain);
       console.log("Transaction hash:", txn.hash);
@@ -420,16 +422,39 @@ task(
       // Handle the error appropriately (e.g., retry, notify user)
     }
 
-    let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
-    let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
-    let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
-    console.log(For_votes);
-    console.log(Abstain_votes);
-    console.log(Against_votes);
+    console.log("checking only for data2voteAbstainHash");
+    console.log(await incoContractInstance.getCollectChoiceHashStatus(eChoiceAbstainHash));
+    console.log(await incoContractInstance.getCollectChoiceData(eChoiceAbstainHash));
+
+    // let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
+    // let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
+    // let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
+
+    // console.log(For_votes);
+    // console.log(Abstain_votes);
+    // console.log(Against_votes);
   
-    console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
-    console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
-    console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
+    // console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
+    // console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
+    // console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
+
+    console.log("\n\n\n\n execution \n");
+    let executionPayload = "0x";
+    try {
+      const txn = await SpaceInstance.execute(1, executionPayload);
+      console.log("Transaction hash:", txn.hash);
+
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("execution successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+
+
+
+    console.log("is executed - " + await incoContractInstance.getIsExecuted(1));
 }
 
     } catch (err) {

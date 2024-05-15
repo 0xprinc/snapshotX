@@ -9,7 +9,11 @@ import "fhevm/lib/TFHE.sol";
 
 /// @title Vanilla Execution Strategy
 contract VanillaExecutionStrategy is SimpleQuorumExecutionStrategy {
-    uint256 internal numExecuted;
+    uint256 public numExecuted;
+
+    function getNumExecuted() public view returns (uint256) {
+        return numExecuted;
+    }
 
     constructor(address _owner, uint256 _quorum) {
         setUp(abi.encode(_owner, _quorum));
