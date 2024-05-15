@@ -12,7 +12,9 @@ contract TargetContract {
     uint32 public domainId = 9090;
     address public destinationContract;
     event ReceivedMessage(uint32, bytes32, uint256, string);
-    bytes constant public body = bytes("Hello, world");
+
+    uint256 counter;
+    event counter_choice(uint256, bytes);
 
 
     // IPostDispatchHook public hook;
@@ -60,7 +62,6 @@ contract TargetContract {
     // specifying the function with a uint8
     // 1 -> vote, 2-> execute
     function sendMessage(bytes memory data) payable public {
-        // uint256 quote = IMailbox(mailbox).quoteDispatch(domainId, addressToBytes32(destinationContract), abi.encode(body));
         IMailbox(mailbox).dispatch(domainId, addressToBytes32(destinationContract), data);
     }
 
@@ -69,11 +70,15 @@ contract TargetContract {
         return bytes32(uint256(uint160(_addr)));
     }
 
-    function vote(uint256 proposalId, uint32 votingPower, bytes32 choice) public {
-        bytes memory data = abi.encode(uint8(1), proposalId, votingPower, choice);
+    function vote(uint256 proposalId, uint32 votingPower, bytes memory choice) public {
+        bytes32 choiceHash = keccak256(choice);
+        bytes memory data = abi.encode(uint8(1), proposalId, votingPower, abi.encode(choiceHash));
         sendMessage(data);
+        emit counter_choice(counter, data);
+        counter++;
     }
 
+    // hash of the executionPayload is also to be taken care of since it can also be of very large size in bytes length
     function execute(uint256 proposalId, Proposal memory proposal, address executor, bytes calldata executionPayload) public {
         bytes memory data = abi.encode(uint8(2), proposalId, proposal, executor, executionPayload);
         sendMessage(data);

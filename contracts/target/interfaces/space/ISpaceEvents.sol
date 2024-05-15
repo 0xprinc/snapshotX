@@ -27,7 +27,7 @@ interface ISpaceEvents {
     /// @param choice The vote choice (`For`, `Against`, `Abstain`).
     /// @param votingPower The voting power of the voter.
     // event VoteCast(uint256 proposalId, address voter, Choice choice, uint256 votingPower);               //@Choice
-    event VoteCast(uint256 proposalId, address voter, bytes32 choice, uint32 votingPower);                   //@votePower
+    event VoteCast(uint256 proposalId, address voter, bytes choice, uint32 votingPower);                   //@votePower
 
     /// @notice Emitted when a vote is cast with metadata.
     /// @param proposalId The proposal id.
@@ -45,7 +45,7 @@ interface ISpaceEvents {
     event VoteCastWithMetadata(     //@votePower
         uint256 proposalId,
         address voter,
-        bytes32 choice,
+        bytes choice,
         uint32 votingPower,
         string metadataUri
     );

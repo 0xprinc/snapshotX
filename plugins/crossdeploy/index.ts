@@ -84,6 +84,9 @@ task(
 
     // let defaultSigners = await hre.ethers.getSigners();
     // console.log("default signers -> " + await defaultSigners[0]);
+    function delay(ms: number) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
     try {
       console.info("\nDeploying contracts on Inco...");
@@ -260,38 +263,53 @@ task(
     let defaultSigners = await hre.ethers.getSigners();
     // console.log("default signers -> " + await defaultSigners[0].address);
 
-    // let data2voteAbstain = [
-    //   await defaultSigners[0].address,
-    //   1,
-    //   fhevmInstance.alice.encrypt8(2),
-    //   [[0,"0x"]],
-    //   ""
-    // ];
+    const eChoiceAgainst = fhevmInstance.alice.encrypt8(2);
+    const eChoiceFor1 = fhevmInstance.alice.encrypt8(1);
+    const eChoiceFor2 = fhevmInstance.alice.encrypt8(1);
+    const eChoiceAbstain = fhevmInstance.alice.encrypt8(0);
 
-    // let data2voteFor1 = [
-    //   await defaultSigners[1].address,
-    //   1,
-    //   fhevmInstance.alice.encrypt8(1),
-    //   [[0,"0x"]],
-    //   ""
-    // ];
-    // let data2voteFor2 = [
-    //   await defaultSigners[2].address,
-    //   1,
-    //   fhevmInstance.alice.encrypt8(1),
-    //   [[0,"0x"]],
-    //   ""
-    // ];
+    let data2voteAbstain = [
+      await defaultSigners[0].address,
+      1,
+      eChoiceAgainst,
+      [[0,"0x"]],
+      ""
+    ];
+
+    let data2voteFor1 = [
+      await defaultSigners[1].address,
+      1,
+      eChoiceFor1,
+      [[0,"0x"]],
+      ""
+    ];
+    let data2voteFor2 = [
+      await defaultSigners[2].address,
+      1,
+      eChoiceFor2,
+      [[0,"0x"]],
+      ""
+    ];
 
     let data2voteAgainst = [
       await defaultSigners[3].address,
       1,
-      fhevmInstance.alice.encrypt8(0),
+      eChoiceAbstain,
       // "0xdead",
       [[0,"0x"]],
       ""
     ];
-    console.log("data2voteAgainst - " + (AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAgainst)).length);
+
+    let eChoiceAbstainHash = hre.ethers.keccak256(eChoiceAbstain);
+    let eChoiceFor1Hash = hre.ethers.keccak256(eChoiceFor1);
+    let eChoiceFor2Hash = hre.ethers.keccak256(eChoiceFor2);
+    let eChoiceAgainstHash = hre.ethers.keccak256(eChoiceAgainst);
+
+    console.log("eChoiceAbstainHash - " + eChoiceAbstainHash);
+    console.log("eChoiceFor1Hash - " + eChoiceFor1Hash);
+    console.log("eChoiceFor2Hash - " + eChoiceFor2Hash);
+    console.log("eChoiceAgainstHash - " + eChoiceAgainstHash);
+
     // console.log("votePower before vote -> " + (await contractSpace.votePower(1, 2)).toString());
     console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
     try {
@@ -305,40 +323,48 @@ task(
       console.error("Transaction failed:", error);
       // Handle the error appropriately (e.g., retry, notify user)
     }
-    // try {
-    //   const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor1));
-    //   console.log("Transaction hash:", txn.hash);
+    try {
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor1));
+      console.log("Transaction hash:", txn.hash);
 
-    //   // Wait for 1 confirmation (adjust confirmations as needed)
-    //   await txn.wait(1);
-    //   console.log("For1 successful!");
-    // } catch (error) {
-    //   console.error("Transaction failed:", error);
-    //   // Handle the error appropriately (e.g., retry, notify user)
-    // }
-    // try {
-    //   const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor2));
-    //   console.log("Transaction hash:", txn.hash);
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("For1 successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+    try {
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor2));
+      console.log("Transaction hash:", txn.hash);
 
-    //   // Wait for 1 confirmation (adjust confirmations as needed)
-    //   await txn.wait(1);
-    //   console.log("For2 successful!");
-    // } catch (error) {
-    //   console.error("Transaction failed:", error);
-    //   // Handle the error appropriately (e.g., retry, notify user)
-    // }
-    // try {
-    //   const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAbstain));
-    //   console.log("Transaction hash:", txn.hash);
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("For2 successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+    try {
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAbstain));
+      console.log("Transaction hash:", txn.hash);
 
-    //   // Wait for 1 confirmation (adjust confirmations as needed)
-    //   await txn.wait(1);
-    //   console.log("Abstain successful!");
-    // } catch (error) {
-    //   console.error("Transaction failed:", error);
-    //   // Handle the error appropriately (e.g., retry, notify user)
-    // }
-    // console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("Abstain successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+
+    console.log("\n\n checking the vote mapping in incoEndpoint \n");
+
+    console.log("waiting for 10 seconds...");
+    await delay(10000);
+
+    console.log("checking only for data2voteAbstainHash");
+    console.log(await incoContractInstance.getCollectChoiceHashStatus(eChoiceAbstainHash));
+    console.log(await incoContractInstance.getCollectChoiceData(eChoiceAbstainHash));
 
 
     const token = fhevmInstance.alice.getTokenSignature(SpaceAddr) || {
@@ -346,16 +372,64 @@ task(
       publicKey: "",
     };
 
-    // let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
-    // let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
-    // let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
-    // console.log(For_votes);
-    // console.log(Abstain_votes);
-    // console.log(Against_votes);
-    
-    // console.log("For votes -> " +     fhevmInstance.alice.decrypt(SpaceAddr, For_votes));
-    // console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(SpaceAddr, Abstain_votes));
-    // console.log("Against votes -> " + fhevmInstance.alice.decrypt(SpaceAddr, Against_votes));
+    try {
+      const txn = await incoContractInstance.vote(eChoiceAbstainHash, eChoiceAbstain);
+      console.log("Transaction hash:", txn.hash);
+
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("Abstain successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+
+    try {
+      const txn = await incoContractInstance.vote(eChoiceFor1Hash, eChoiceFor1);
+      console.log("Transaction hash:", txn.hash);
+
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("for1 successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+
+    try {
+      const txn = await incoContractInstance.vote(eChoiceFor2Hash, eChoiceFor2);
+      console.log("Transaction hash:", txn.hash);
+
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("for2 successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+
+    try {
+      const txn = await incoContractInstance.vote(eChoiceAgainstHash, eChoiceAgainst);
+      console.log("Transaction hash:", txn.hash);
+
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("against successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+
+    let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
+    let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
+    let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
+    console.log(For_votes);
+    console.log(Abstain_votes);
+    console.log(Against_votes);
+  
+    console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
+    console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
+    console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
 }
 
     } catch (err) {

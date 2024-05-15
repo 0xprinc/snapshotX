@@ -230,7 +230,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
         address voter,
         uint256 proposalId,
         // bytes calldata choice,
-        bytes32 choiceHash,
+        bytes calldata choice,
         IndexedStrategy[] calldata userVotingStrategies,
         string calldata metadataURI
     ) external override onlyAuthenticator {
@@ -255,12 +255,12 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
 
 
         if (bytes(metadataURI).length == 0) {
-            emit VoteCast(proposalId, voter, choiceHash, votingPower);  //@votePower
+            emit VoteCast(proposalId, voter, choice, votingPower);  //@votePower
         } else {
-            emit VoteCastWithMetadata(proposalId, voter, choiceHash, votingPower, metadataURI); //@votePower
+            emit VoteCastWithMetadata(proposalId, voter, choice, votingPower, metadataURI); //@votePower
         }
 
-        targetEndpoint.vote(proposalId, votingPower, choiceHash);
+        targetEndpoint.vote(proposalId, votingPower, choice);
         //method 1
         // votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);  // tbc 
 

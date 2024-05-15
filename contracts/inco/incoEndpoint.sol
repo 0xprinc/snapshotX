@@ -9,6 +9,7 @@ import "fhevm/lib/TFHE.sol";
 import {Proposal} from "./types.sol";
 import { IExecutionStrategy } from "./interfaces/IExecutionStrategy.sol";
 
+// also we have to take care that the votes in inco and target chain are synced
 contract IncoContract {
     address public mailbox = 0x18a2B6a086EE7d4070Cf675BDf27717d03258FcF;
     address public lastSender;
@@ -23,14 +24,20 @@ contract IncoContract {
     }
 
     mapping(uint256 proposalId => mapping(uint8 choice => euint32 votePower)) private votePower;
-    mapping(bytes32 => bool[2]) public collectChoiceHashStatus;   // [bool(exists or not), bool(used one time or not)]
-    mapping(bytes32 => choiceData) public collectChoiceData;
+    mapping(bytes => bool[2]) public collectChoiceHashStatus;   // [bool(exists or not), bool(used one time or not)]
+    mapping(bytes => choiceData) public collectChoiceData;
 
 
     // IPostDispatchHook public hook;
     IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x79411A19a8722Dd3D4DbcB0def6d10783237adad);
 
+    function getCollectChoiceHashStatus(bytes memory choiceHash) public view returns(bool[2] memory){
+        return collectChoiceHashStatus[choiceHash];
+    }
 
+    function getCollectChoiceData(bytes memory choiceHash) public view returns(choiceData memory){
+        return collectChoiceData[choiceHash];
+    }
     
     function setHook(address _hook) public {
         // hook = IPostDispatchHook(_hook);
@@ -64,12 +71,12 @@ contract IncoContract {
         lastData = _data;
         uint8 selector = abi.decode(_data, (uint8));
         if (selector == 1) {
-            (uint256 proposalId, uint32 votingPower, bytes32 choiceHash) = abi.decode(_data, (uint256, uint32, bytes32));
+            (,uint256 proposalId, uint32 votingPower, bytes memory choiceHash) = abi.decode(_data, (uint8, uint256, uint32, bytes));
             require(collectChoiceHashStatus[choiceHash][0]!= true);
             collectChoiceHashStatus[choiceHash] = [true, false];
             collectChoiceData[choiceHash] = choiceData(proposalId, votingPower);
         } else if (selector == 2) {
-            (uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) = abi.decode(_data, (uint256, Proposal  , address , bytes));
+            (, uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) = abi.decode(_data, (uint8, uint256, Proposal  , address , bytes));
             execute(proposalId, proposal, executor, executionPayload);
         }
     }
@@ -93,7 +100,7 @@ contract IncoContract {
         return TFHE.reencrypt(votePower[proposalId][choice], publicKey, 0);
     }
 
-    function vote(bytes32 choiceHash, bytes memory choice) public {
+    function vote(bytes memory choiceHash, bytes memory choice) public {
         require(keccak256(choice) == bytes32(choiceHash));
         bool[2] memory status = collectChoiceHashStatus[choiceHash];
         require(status[0] == true && status[1] == false);
