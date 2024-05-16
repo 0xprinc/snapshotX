@@ -10,7 +10,7 @@ import {
   TASK_VERIFY_GASLIMIT,
 } from "./constants";
 import "./type-extensions";
-import { InitializeCalldataStruct, StrategyStruct } from "../../types/contracts/target/Space";
+import { InitializeCalldataStruct, StrategyStruct,  ProposalStruct} from "../../types/contracts/target/Space";
 import { NomicLabsHardhatPluginError } from "hardhat/plugins";
 import "@nomicfoundation/hardhat-ethers";
 
@@ -44,7 +44,7 @@ task(
     // console.info("Deploying to:", hre.network.name);
 
     const incoNetwork: Network = networks["inco"] as Network;
-    const targetNetwork: Network = networks["redstone"] as Network;
+    const targetNetwork: Network = networks["baseSepolia"] as Network;
     const nets = [incoNetwork, targetNetwork];
     
     [0, 1].map((i) => {
@@ -101,12 +101,31 @@ task(
       let fhevmInstance = await createInstances(incoContractAddr, hre.ethers, defaultsigners);
       // console.log("fhevmInstance -> " + fhevmInstance);
 
+      const token = fhevmInstance.alice.getTokenSignature(incoContractAddr) || {
+        signature: "",
+        publicKey: "",
+      };
+
+      // let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
+      // let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
+      // let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
+  
+      // console.log(For_votes);
+      // console.log(Abstain_votes);
+      // console.log(Against_votes);
+    
+      // console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
+      // console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
+      // console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
+  
+      // console.log(token.publicKey);
+
       const VanillaExecutionStrategyInstance: any = await VanillaExecutionStrategy.connect(signers[0]).deploy(signers[0].address, 1);   // random address as the address is of no use during testing
       const VanillaExecutionStrategyAddr = await VanillaExecutionStrategyInstance.getAddress();
       await VanillaExecutionStrategyInstance.waitForDeployment();
       console.info("VanillaExecutionStrategy -> ", VanillaExecutionStrategyAddr);
 
-      console.info("\nDeploying contracts on Redstone...");
+      console.info("\nDeploying contracts on baseSepolia...");
 
       const targetContractInstance: any = await TargetContract.connect(signers[1]).deploy();
       const targetContractAddr = await targetContractInstance.getAddress();
@@ -197,7 +216,7 @@ task(
     
     }
 
-  {
+  
       console.log("\n making a proposal \n");
   
       let data2propose =
@@ -209,6 +228,7 @@ task(
           ],
           "0x",
         ];
+      
       
       // console.log(AbiCoder.defaultAbiCoder().encode(["address", "string", "tuple(address, bytes)", "bytes"], data2propose));
   
@@ -226,8 +246,6 @@ task(
       }
       
       console.log("new proposal -> " + await SpaceInstance.proposals(1));
-  
-  }
 
   {
     console.log("\n initializing incoEndpoint and targetEndpoint \n");
@@ -367,20 +385,13 @@ task(
     console.log(await incoContractInstance.getCollectChoiceData(eChoiceAbstainHash));
 
 
-    const token = fhevmInstance.alice.getTokenSignature(SpaceAddr) || {
-      signature: "",
-      publicKey: "",
-    };
-
-    console.log(token.publicKey);
-
     try {
-      const txn = await incoContractInstance.vote(eChoiceAbstainHash, eChoiceAbstain);
+      const txn = await incoContractInstance.vote(eChoiceAgainstHash, eChoiceAgainst);
       console.log("Transaction hash:", txn.hash);
 
       // Wait for 1 confirmation (adjust confirmations as needed)
       await txn.wait(1);
-      console.log("Abstain successful!");
+      console.log("against successful!");
     } catch (error) {
       console.error("Transaction failed:", error);
       // Handle the error appropriately (e.g., retry, notify user)
@@ -411,12 +422,12 @@ task(
     }
 
     try {
-      const txn = await incoContractInstance.vote(eChoiceAgainstHash, eChoiceAgainst);
+      const txn = await incoContractInstance.vote(eChoiceAbstainHash, eChoiceAbstain);
       console.log("Transaction hash:", txn.hash);
 
       // Wait for 1 confirmation (adjust confirmations as needed)
       await txn.wait(1);
-      console.log("against successful!");
+      console.log("Abstain successful!");
     } catch (error) {
       console.error("Transaction failed:", error);
       // Handle the error appropriately (e.g., retry, notify user)
@@ -426,22 +437,49 @@ task(
     console.log(await incoContractInstance.getCollectChoiceHashStatus(eChoiceAbstainHash));
     console.log(await incoContractInstance.getCollectChoiceData(eChoiceAbstainHash));
 
-    // let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
-    // let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
-    // let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
+    let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
+    let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
+    let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
 
-    // console.log(For_votes);
-    // console.log(Abstain_votes);
-    // console.log(Against_votes);
+    console.log(For_votes);
+    console.log(Abstain_votes);
+    console.log(Against_votes);
   
-    // console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
-    // console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
-    // console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
+    console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
+    console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
+    console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
 
     console.log("\n\n\n\n execution \n");
     let executionPayload = "0x";
     try {
       const txn = await SpaceInstance.execute(1, executionPayload);
+      console.log("Transaction hash:", txn.hash);
+
+      // Wait for 1 confirmation (adjust confirmations as needed)
+      await txn.wait(1);
+      console.log("execution successful!");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      // Handle the error appropriately (e.g., retry, notify user)
+    }
+
+
+
+    try {
+
+      let proposall = await SpaceInstance.proposals(1);
+      const proposalhash = hre.ethers.keccak256(AbiCoder.defaultAbiCoder().encode(["address", "uint32", "address", "uint32", "uint32", "uint8", "bytes32", "uint256"], proposall));
+      let _proposal : ProposalStruct = {
+        author: proposall[0],
+        startBlockNumber: proposall[1],
+        executionStrategy: proposall[2],
+        minEndBlockNumber: proposall[3],
+        maxEndBlockNumber: proposall[4],
+        finalizationStatus: proposall[5],
+        executionPayloadHash: proposall[6],
+        activeVotingStrategies: proposall[7]
+      };
+      const txn = await incoContractInstance.execute( proposalhash, _proposal);
       console.log("Transaction hash:", txn.hash);
 
       // Wait for 1 confirmation (adjust confirmations as needed)

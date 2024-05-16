@@ -23,9 +23,17 @@ contract IncoContract {
         uint32 votingPower;
     }
 
+    struct executeData {
+        uint256 proposalId;
+        bytes executionPayload;
+    }
+
     mapping(uint256 proposalId => mapping(uint8 choice => euint32 votePower)) public votePower;     // should be made private
     mapping(bytes => bool[2]) public collectChoiceHashStatus;   // [bool(exists or not), bool(used one time or not)]
     mapping(bytes => choiceData) public collectChoiceData;
+
+    mapping(bytes32 => bool[2]) public collectExecuteHashStatus;   // [bool(exists or not), bool(used one time or not)]
+    mapping(bytes32 => executeData) public collectExecuteData;
     mapping(uint256 proposalId => bool) public isExecuted;
 
     function getIsExecuted(uint256 proposalId) public view returns(bool){
@@ -81,8 +89,10 @@ contract IncoContract {
             collectChoiceHashStatus[choiceHash] = [true, false];
             collectChoiceData[choiceHash] = choiceData(proposalId, votingPower);
         } else if (selector == 2) {
-            (, uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) = abi.decode(_data, (uint8, uint256, Proposal  , address , bytes));
-            execute(proposalId, proposal, executor, executionPayload);
+            (, uint256 proposalId, bytes32 proposalhash, address executor, bytes memory executionPayload) = abi.decode(_data, (uint8, uint256, bytes32, address, bytes));
+            require(collectExecuteHashStatus[proposalhash][0]!= true);
+            collectExecuteHashStatus[proposalhash] = [true, false];
+            collectExecuteData[proposalhash] = executeData(proposalId, executionPayload);
         }
     }
 
@@ -115,9 +125,15 @@ contract IncoContract {
         collectChoiceHashStatus[choiceHash] = [true, true];
     }
 
-    function execute(uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) public {
-        IExecutionStrategy(executor).execute(
-            proposalId,
+    function execute(bytes32 proposalhash, Proposal memory proposal) public {
+        require(keccak256(abi.encode(proposal)) == proposalhash);
+        bool[2] memory status = collectExecuteHashStatus[proposalhash];
+        require(status[0] == true && status[1] == false);
+        uint256 proposalId = collectExecuteData[proposalhash].proposalId;
+        bytes memory executionPayload = collectExecuteData[proposalhash].executionPayload;
+
+        IExecutionStrategy(proposal.executionStrategy).execute(
+            collectExecuteData[proposalhash].proposalId,
             proposal,
             votePower[proposalId][1],
             votePower[proposalId][0],
@@ -125,6 +141,8 @@ contract IncoContract {
             executionPayload
         );
 
+        collectExecuteHashStatus[proposalhash] = [true, true];
+        
         isExecuted[proposalId] = true;
     }
 }

@@ -295,7 +295,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
         //     executionPayload
         // );
 
-        targetEndpoint.execute(proposalId, cachedProposal, proposal.executionStrategy, executionPayload);
+        targetEndpoint.execute(proposalId, cachedProposal, executionPayload);
 
         emit ProposalExecuted(proposalId);
     }

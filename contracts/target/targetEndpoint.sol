@@ -6,19 +6,24 @@ import {IInterchainSecurityModule} from "@hyperlane-xyz/core/contracts/interface
 import {Proposal} from "./types.sol";
 
 contract TargetContract {
-    address public mailbox = 0x46e7416C63E71E8EA0f99A7F5033E6263c6e5138;
+    // address public mailbox = 0x46e7416C63E71E8EA0f99A7F5033E6263c6e5138;
+    address public mailbox = 0xE082D048F4B96e313D682255cE9aCA4BF8A527b1;        // base
     address public lastSender;
     bytes public lastData;
     uint32 public domainId = 9090;
     address public destinationContract;
     event ReceivedMessage(uint32, bytes32, uint256, string);
 
-    uint256 counter;
-    event counter_choice(uint256, bytes);
+    uint256 public votecounter;
+    event counter_choice_vote(uint256, bytes);
+
+    uint256 public executecounter;
+    event counter_execute(uint256, Proposal);
 
 
     // IPostDispatchHook public hook;
-    IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x71b6fdF09C772F2ED28B15059Bd104f4c282290f);
+    // IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x71b6fdF09C772F2ED28B15059Bd104f4c282290f);
+    IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0xA7c9326c582Fe968563B1Afe5038827A0936caa9);          // base
 
 
     
@@ -74,13 +79,16 @@ contract TargetContract {
         bytes32 choiceHash = keccak256(choice);
         bytes memory data = abi.encode(uint8(1), proposalId, votingPower, abi.encode(choiceHash));
         sendMessage(data);
-        emit counter_choice(counter, data);
-        counter++;
+        emit counter_choice_vote(votecounter, data);
+        votecounter++;
     }
 
     // hash of the executionPayload is also to be taken care of since it can also be of very large size in bytes length
-    function execute(uint256 proposalId, Proposal memory proposal, address executor, bytes calldata executionPayload) public {
-        bytes memory data = abi.encode(uint8(2), proposalId, proposal, executor, executionPayload);
+    function execute(uint256 proposalId, Proposal memory proposal, bytes calldata executionPayload) public {
+        bytes32 proposalhash = keccak256(abi.encode(proposal));
+        bytes memory data = abi.encode(uint8(2), proposalId, proposalhash, executionPayload);
         sendMessage(data);
+        emit counter_execute(executecounter, proposal);
+        executecounter++;
     }
 }
