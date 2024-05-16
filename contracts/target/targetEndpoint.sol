@@ -18,7 +18,7 @@ contract TargetContract {
     event counter_choice_vote(uint256, bytes);
 
     uint256 public executecounter;
-    event counter_execute(uint256, Proposal);
+    event counter_execute(uint256, bytes, bytes32);
 
 
     // IPostDispatchHook public hook;
@@ -79,16 +79,16 @@ contract TargetContract {
         bytes32 choiceHash = keccak256(choice);
         bytes memory data = abi.encode(uint8(1), proposalId, votingPower, abi.encode(choiceHash));
         sendMessage(data);
-        emit counter_choice_vote(votecounter, data);
+        emit counter_choice_vote(votecounter, choice);
         votecounter++;
     }
 
     // hash of the executionPayload is also to be taken care of since it can also be of very large size in bytes length
-    function execute(uint256 proposalId, Proposal memory proposal, bytes calldata executionPayload) public {
+    function execute(uint256 proposalId, Proposal memory proposal, bytes memory executionPayload) public {
         bytes32 proposalhash = keccak256(abi.encode(proposal));
         bytes memory data = abi.encode(uint8(2), proposalId, proposalhash, executionPayload);
         sendMessage(data);
-        emit counter_execute(executecounter, proposal);
+        emit counter_execute(executecounter, abi.encode(proposal), proposalhash);
         executecounter++;
     }
 }

@@ -8,6 +8,7 @@ cache
 coverage
 dist
 node_modules
+bridge/node_modules
 types
 deployments
 

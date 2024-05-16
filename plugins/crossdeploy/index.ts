@@ -377,61 +377,15 @@ task(
 
     console.log("\n\n checking the vote mapping in incoEndpoint \n");
 
-    console.log("waiting for 10 seconds...");
-    await delay(10000);
+    console.log("waiting for 28 seconds...");
+    await delay(28000);
 
-    console.log("checking only for data2voteAbstainHash");
-    console.log(await incoContractInstance.getCollectChoiceHashStatus(eChoiceAbstainHash));
-    console.log(await incoContractInstance.getCollectChoiceData(eChoiceAbstainHash));
+    // console.log("checking only for data2voteAbstainHash");
+    // console.log(await incoContractInstance.getCollectChoiceHashStatus(eChoiceAbstainHash));
+    // console.log(await incoContractInstance.getCollectChoiceData(eChoiceAbstainHash));
 
-
-    try {
-      const txn = await incoContractInstance.vote(eChoiceAgainstHash, eChoiceAgainst);
-      console.log("Transaction hash:", txn.hash);
-
-      // Wait for 1 confirmation (adjust confirmations as needed)
-      await txn.wait(1);
-      console.log("against successful!");
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      // Handle the error appropriately (e.g., retry, notify user)
-    }
-
-    try {
-      const txn = await incoContractInstance.vote(eChoiceFor1Hash, eChoiceFor1);
-      console.log("Transaction hash:", txn.hash);
-
-      // Wait for 1 confirmation (adjust confirmations as needed)
-      await txn.wait(1);
-      console.log("for1 successful!");
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      // Handle the error appropriately (e.g., retry, notify user)
-    }
-
-    try {
-      const txn = await incoContractInstance.vote(eChoiceFor2Hash, eChoiceFor2);
-      console.log("Transaction hash:", txn.hash);
-
-      // Wait for 1 confirmation (adjust confirmations as needed)
-      await txn.wait(1);
-      console.log("for2 successful!");
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      // Handle the error appropriately (e.g., retry, notify user)
-    }
-
-    try {
-      const txn = await incoContractInstance.vote(eChoiceAbstainHash, eChoiceAbstain);
-      console.log("Transaction hash:", txn.hash);
-
-      // Wait for 1 confirmation (adjust confirmations as needed)
-      await txn.wait(1);
-      console.log("Abstain successful!");
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      // Handle the error appropriately (e.g., retry, notify user)
-    }
+    console.log("waiting for 28 seconds...");
+    await delay(28000);
 
     console.log("checking only for data2voteAbstainHash");
     console.log(await incoContractInstance.getCollectChoiceHashStatus(eChoiceAbstainHash));
@@ -465,32 +419,32 @@ task(
 
 
 
-    try {
+    // try {
+    //   let proposall = await SpaceInstance.proposals(1);
+    //   const proposalhash = hre.ethers.keccak256(AbiCoder.defaultAbiCoder().encode(["address", "uint32", "address", "uint32", "uint32", "uint8", "bytes32", "uint256"], proposall));
+    //   let _proposal : ProposalStruct = {
+    //     author: proposall[0],
+    //     startBlockNumber: proposall[1],
+    //     executionStrategy: proposall[2],
+    //     minEndBlockNumber: proposall[3],
+    //     maxEndBlockNumber: proposall[4],
+    //     finalizationStatus: proposall[5],
+    //     executionPayloadHash: proposall[6],
+    //     activeVotingStrategies: proposall[7]
+    //   };
+    //   const txn = await incoContractInstance.execute( proposalhash, _proposal);
+    //   console.log("Transaction hash:", txn.hash);
 
-      let proposall = await SpaceInstance.proposals(1);
-      const proposalhash = hre.ethers.keccak256(AbiCoder.defaultAbiCoder().encode(["address", "uint32", "address", "uint32", "uint32", "uint8", "bytes32", "uint256"], proposall));
-      let _proposal : ProposalStruct = {
-        author: proposall[0],
-        startBlockNumber: proposall[1],
-        executionStrategy: proposall[2],
-        minEndBlockNumber: proposall[3],
-        maxEndBlockNumber: proposall[4],
-        finalizationStatus: proposall[5],
-        executionPayloadHash: proposall[6],
-        activeVotingStrategies: proposall[7]
-      };
-      const txn = await incoContractInstance.execute( proposalhash, _proposal);
-      console.log("Transaction hash:", txn.hash);
+    //   // Wait for 1 confirmation (adjust confirmations as needed)
+    //   await txn.wait(1);
+    //   console.log("execution successful!");
+    // } catch (error) {
+    //   console.error("Transaction failed:", error);
+    //   // Handle the error appropriately (e.g., retry, notify user)
+    // }
 
-      // Wait for 1 confirmation (adjust confirmations as needed)
-      await txn.wait(1);
-      console.log("execution successful!");
-    } catch (error) {
-      console.error("Transaction failed:", error);
-      // Handle the error appropriately (e.g., retry, notify user)
-    }
-
-
+    console.log("waiting 20 seconds till the execution is done...");
+    await delay(20000);
 
     console.log("is executed - " + await incoContractInstance.getIsExecuted(1));
 }

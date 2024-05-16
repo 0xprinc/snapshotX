@@ -35,6 +35,14 @@ contract IncoContract {
     mapping(bytes32 => bool[2]) public collectExecuteHashStatus;   // [bool(exists or not), bool(used one time or not)]
     mapping(bytes32 => executeData) public collectExecuteData;
     mapping(uint256 proposalId => bool) public isExecuted;
+    
+    struct executionlol{
+        bytes32 proposalhash;
+        uint256 proposalId;
+        bytes payload;
+    }
+
+    executionlol[] public loll;
 
     function getIsExecuted(uint256 proposalId) public view returns(bool){
         return isExecuted[proposalId];
@@ -89,7 +97,8 @@ contract IncoContract {
             collectChoiceHashStatus[choiceHash] = [true, false];
             collectChoiceData[choiceHash] = choiceData(proposalId, votingPower);
         } else if (selector == 2) {
-            (, uint256 proposalId, bytes32 proposalhash, address executor, bytes memory executionPayload) = abi.decode(_data, (uint8, uint256, bytes32, address, bytes));
+            (, uint256 proposalId, bytes32 proposalhash, bytes memory executionPayload) = abi.decode(_data, (uint8, uint256, bytes32, bytes));
+            loll.push(executionlol(proposalhash, proposalId, executionPayload));
             require(collectExecuteHashStatus[proposalhash][0]!= true);
             collectExecuteHashStatus[proposalhash] = [true, false];
             collectExecuteData[proposalhash] = executeData(proposalId, executionPayload);
@@ -125,16 +134,17 @@ contract IncoContract {
         collectChoiceHashStatus[choiceHash] = [true, true];
     }
 
-    function execute(bytes32 proposalhash, Proposal memory proposal) public {
-        require(keccak256(abi.encode(proposal)) == proposalhash);
+    function execute(bytes32 proposalhash, bytes memory proposal) public {
+        require(keccak256(proposal) == proposalhash, "hash not matched");
         bool[2] memory status = collectExecuteHashStatus[proposalhash];
-        require(status[0] == true && status[1] == false);
+        require(status[0] == true && status[1] == false, "status not matched");
         uint256 proposalId = collectExecuteData[proposalhash].proposalId;
         bytes memory executionPayload = collectExecuteData[proposalhash].executionPayload;
+        Proposal memory _proposal = abi.decode(proposal, (Proposal));
 
-        IExecutionStrategy(proposal.executionStrategy).execute(
+        IExecutionStrategy(_proposal.executionStrategy).execute(
             collectExecuteData[proposalhash].proposalId,
-            proposal,
+            _proposal,
             votePower[proposalId][1],
             votePower[proposalId][0],
             votePower[proposalId][2],
