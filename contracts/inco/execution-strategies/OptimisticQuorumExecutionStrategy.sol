@@ -32,7 +32,8 @@ abstract contract OptimisticQuorumExecutionStrategy is IExecutionStrategy, Space
         euint32 votesFor,
         euint32 votesAgainst,
         euint32 votesAbstain,
-        bytes memory payload
+        bytes memory payload,
+        uint32 blocknumber
     ) external virtual override;
 
     /// @notice Returns the status of a proposal that uses an optimistic quorum.
@@ -44,22 +45,23 @@ abstract contract OptimisticQuorumExecutionStrategy is IExecutionStrategy, Space
         Proposal memory proposal,
         euint32, // votesFor,
         euint32 votesAgainst,
-        euint32 // votesAbstain
+        euint32, // votesAbstain
+        uint32 blocknumber
     ) public view override returns (ProposalStatus) {
         bool rejected = TFHE.decrypt(TFHE.ge(votesAgainst,TFHE.asEuint32(quorum)));
         if (proposal.finalizationStatus == FinalizationStatus.Cancelled) {
             return ProposalStatus.Cancelled;
         } else if (proposal.finalizationStatus == FinalizationStatus.Executed) {
             return ProposalStatus.Executed;
-        } else if (block.number < proposal.startBlockNumber) {
+        } else if (blocknumber < proposal.startBlockNumber) {
             return ProposalStatus.VotingDelay;
         } else if (rejected) {
             // We're past the vote start. If it has been rejected, we can short-circuit and return Rejected.
             return ProposalStatus.Rejected;
-        } else if (block.number < proposal.minEndBlockNumber) {
+        } else if (blocknumber < proposal.minEndBlockNumber) {
             // minEndBlockNumber not reached, indicate we're still in the voting period.
             return ProposalStatus.VotingPeriod;
-        } else if (block.number < proposal.maxEndBlockNumber) {
+        } else if (blocknumber < proposal.maxEndBlockNumber) {
             // minEndBlockNumber < block.number < maxEndBlockNumber ; if not `rejected`, we can indicate it can be `accepted`.
             return ProposalStatus.VotingPeriodAccepted;
         } else {

@@ -101,7 +101,7 @@ task(
       let fhevmInstance = await createInstances(incoContractAddr, hre.ethers, defaultsigners);
       // console.log("fhevmInstance -> " + fhevmInstance);
 
-      const token = fhevmInstance.alice.getTokenSignature(incoContractAddr) || {
+      const token = fhevmInstance.alice.getPublicKey(incoContractAddr) || {
         signature: "",
         publicKey: "",
       };
@@ -443,8 +443,8 @@ task(
     //   // Handle the error appropriately (e.g., retry, notify user)
     // }
 
-    console.log("waiting 20 seconds till the execution is done...");
-    await delay(20000);
+    console.log("waiting 30 seconds till the execution is done...");
+    await delay(30000);
 
     console.log("is executed - " + await incoContractInstance.getIsExecuted(1));
 }

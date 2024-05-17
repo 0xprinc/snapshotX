@@ -41,7 +41,8 @@ abstract contract EmergencyQuorumExecutionStrategy is IExecutionStrategy, SpaceM
         euint32 votesFor,
         euint32 votesAgainst,
         euint32 votesAbstain,
-        bytes memory payload
+        bytes memory payload,
+        uint32 blocknumber
     ) external virtual override;
 
     // solhint-disable-next-line code-complexity
@@ -49,7 +50,8 @@ abstract contract EmergencyQuorumExecutionStrategy is IExecutionStrategy, SpaceM
         Proposal memory proposal,
         euint32 votesFor,
         euint32 votesAgainst,
-        euint32 votesAbstain
+        euint32 votesAbstain,
+        uint32 blocknumber
     ) public view override returns (ProposalStatus) {
         bool emergencyQuorumReached = _quorumReached(emergencyQuorum, votesFor, votesAbstain);
 

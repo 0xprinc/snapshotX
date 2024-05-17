@@ -15,14 +15,16 @@ interface IExecutionStrategy is IExecutionStrategyErrors {
         euint32 votesFor,
         euint32 votesAgainst,
         euint32 votesAbstain,
-        bytes memory payload
+        bytes memory payload,
+        uint32 blocknumber
     ) external;
 
     function getProposalStatus(             //@votePower
         Proposal memory proposal,
         euint32 votesFor,
         euint32 votesAgainst,
-        euint32 votesAbstain
+        euint32 votesAbstain,
+        uint32 blocknumber
     ) external view returns (ProposalStatus);
 
     function getStrategyType() external view returns (string memory);

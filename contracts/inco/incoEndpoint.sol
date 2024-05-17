@@ -134,7 +134,7 @@ contract IncoContract {
         collectChoiceHashStatus[choiceHash] = [true, true];
     }
 
-    function execute(bytes32 proposalhash, bytes memory proposal) public {
+    function execute(bytes32 proposalhash, bytes memory proposal, uint32 blocknumber) public {
         require(keccak256(proposal) == proposalhash, "hash not matched");
         bool[2] memory status = collectExecuteHashStatus[proposalhash];
         require(status[0] == true && status[1] == false, "status not matched");
@@ -148,7 +148,8 @@ contract IncoContract {
             votePower[proposalId][1],
             votePower[proposalId][0],
             votePower[proposalId][2],
-            executionPayload
+            executionPayload,
+            blocknumber
         );
 
         collectExecuteHashStatus[proposalhash] = [true, true];

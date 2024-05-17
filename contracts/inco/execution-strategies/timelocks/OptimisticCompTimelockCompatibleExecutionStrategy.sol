@@ -93,9 +93,10 @@ contract OptimisticCompTimelockCompatibleExecutionStrategy is OptimisticQuorumEx
         euint32 votesFor,
         euint32 votesAgainst,
         euint32 votesAbstain,
-        bytes memory payload
+        bytes memory payload,
+        uint32 blocknumber
     ) external override onlySpace {
-        ProposalStatus proposalStatus = getProposalStatus(proposal, votesFor, votesAgainst, votesAbstain);
+        ProposalStatus proposalStatus = getProposalStatus(proposal, votesFor, votesAgainst, votesAbstain, blocknumber);
         if ((proposalStatus != ProposalStatus.Accepted) && (proposalStatus != ProposalStatus.VotingPeriodAccepted)) {
             revert InvalidProposalStatus(proposalStatus);
         }
