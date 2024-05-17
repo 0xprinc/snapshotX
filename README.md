@@ -2,33 +2,33 @@ Cross Chain Voting Server
 
 command:
 
-'''sh 
+```sh
 pnpm install 
-''' 
+```
 
-'''sh 
+```sh 
 cp .env.example .env 
-''' 
+``` 
 
 Add your private key to the .env file. 
 
-'''sh 
+```sh 
 npx hardhat compile 
-'''
+```
 
 **Setup the server** 
 
 Clone the server github repo: 
 https://github.com/0xprinc/bridge-server 
 
-'''sh 
+```sh 
 npm install  
 node index.js 
-''' 
+``` 
 
-'''sh
+```sh
 npx hardhat crosschain deploy base sepolia
-'''
+```
 
 User Flow: 
 1) You cast the encrypted vote on Base.
