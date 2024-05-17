@@ -1,73 +1,68 @@
-We have made modifications to the SnapshotX core repo which you can find here: https://github.com/snapshot-labs/sx-evm  
+Cross Chain Voting Server 
 
-There are three branches in this repo: 
+command:
 
-## Main Branch 
-This repo demonstrates private voting on Inco. The key change that we have made is changing the enum Choice in the original repo.  
+'''sh 
+pnpm install 
+''' 
 
-We have made modifications to the following contracts:
+'''sh 
+cp .env.example .env 
+''' 
 
-1) **Space.sol** : 
-- We have modified the vote, execute, and get proposal status function to work with encrypted types of TFHE library.
-- choice enum is converted to encrypted bytes choice
-- votePower is converted from uint256 to euint32 (votePower mapping is where all the votes of (For, Abstain, Against) are aggregated)
+Add your private key to the .env file. 
 
-2) **Execution Strategy Module :**
-- changed the functions of `execute` and `getProposalStatus` to have the logic of working with encrypted votePower.
+'''sh 
+npx hardhat compile 
+'''
 
-To compile the code: 
+**Setup the server** 
 
-```sh
-pnpm install
-npx hardhat compile --network inco 
-```
+Clone the server github repo: 
+https://github.com/0xprinc/bridge-server 
 
-To test the code: 
+'''sh 
+npm install  
+node index.js 
+''' 
 
-```sh
-npx hardhat test --network inco 
-```
+'''sh
+npx hardhat crosschain deploy base sepolia
+'''
 
+User Flow: 
+1) You cast the encrypted vote on Base.
+2) The vote function on Space.sol calls the vote function on target endpoint. 
+3) Vote function on target endpoint does two things: 
+  a) Emit an event (counter_choice_vote) containing the cipherhext (choice). 
+  b) Calls the send message function and sends the hash of choice ciphertext through hyperlane to Inco
+4) Inco endpoint when recieves the hash of the ciphertext through hyperlane, stores the hash of choice ciphertext, vote power, proposal ID.
+5) The server watches for emitted events which contain the ciphertext and then intitates a vote transaction on Inco endpoint. The vote function on Inco endpoint verifies that the stored hash and the incoming ciphertext and then casts the vote on Inco.
+6) Similarly, in the flow of execute function, instead of sending the choice ciphertext, we send the proposal in bytes form. 
 
-## Cross-Chain voting Branch
-
-This repo demonstrates cross-chain private voting between Inco and Redstone. The only logic on Inco is the tallying of the encrypted votes. The rest of the logic (authenticating users, proposal validation strategies, voting strategies remains on the primary chain). We use Hyperlane 's mailbox address to pass messages. We have defined incoendpoint.sol and targetendpoint.sol to pass messages. 
-
-The modifications we made earlier remain the same but we spilt the codebase in the following manner:
-
-Logic on Inco:
-- __votePower mapping__ : encrypted values of aggregated votes of (For, against, abstain)
-- __inco endpoint contract__ : used for receiving crosschain calls from target chain(redstone)
-- __Execution Strategy Module__ : which accesses the votePower mapping and executes
-
-Logic on Redstone: 
-- __target Endpoint contract__ : used for sending data to inco endpoint contract
-- all other modules and Space.sol(main contract)
-
-To compile the code: 
-
-```sh
-pnpm install
-npx hardhat compile --network inco 
-```
-
-To test the code: 
-
-```sh
-npx hardhat crossdeploy --network redstone
-```
-
-Changes made :
-- `vote` and `execute` function are changed to call `targetEndpoint` as `votePower` mapping is present in inco
+Vote counter: We define vote counter such that we can tally the # of votes casted on the target endpoint have been processed on Inco endpoint. 
 
 
-## Cross-chain voting with modified execution logic branch
+Why do we need to send hash of ciphertext? 
+- So that we verify that the ciphertext sent by the server is matching the hash of ciphertext sent through hyperlane
+
+
+
+
+
+
+
+
+
+Alternate Approach: 
+
+Send a signed message through the server using ECReover 
+
+What does ECRecover do? 
+
+If there is a message, you can sign them using a private key. This will generate a signature, 
+now you can send this signature. ECRecover(signature) = fetches you the public key of the private key. 
+So you can verify that the sender has actually signed the message. 
+We send a signature to the server and server will generate a public key. We have a set of trusted/whitelisted addresses.  
  
  
-This repo demonstrates cross-chain private voting between Inco and Redstone. The key difference between the multi-chain and cylic transaction branch is that the execution also happens on Redstone. 
-
-Contracts on Inco: 
-Modified Execution Strategy Module. Now the execution remains on Redstone, Inco sends the tallied result to Inco.
-
-Contracts on Redstone: 
-Rest of the code. 
