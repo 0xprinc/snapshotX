@@ -47,6 +47,8 @@ npx hardhat crosschain deploy base sepolia
 Vote counter: We define the vote counter such that we can tally the number of votes casted on the target endpoint that have been processed on the Inco endpoint.
 
 
+<img width="1080" alt="Screenshot 2024-05-17 at 9 47 15 PM" src="https://github.com/0xprinc/snapshotX/assets/32016969/eb49d70d-3421-45ef-8180-d09faf6d7726">
+
 
 ## Alternate Approach: 
 
