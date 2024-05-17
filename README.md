@@ -1,4 +1,4 @@
-Cross Chain Voting Server 
+## Cross Chain Voting Server 
 
 command:
 
@@ -26,11 +26,13 @@ npm install
 node index.js 
 ``` 
 
+Deploy: 
+
 ```sh
 npx hardhat crosschain deploy base sepolia
 ```
 
-User Flow: 
+##User Flow: 
 1) You cast the encrypted vote on Base.
 2) The vote function on Space.sol calls the vote function on target endpoint. 
 3) Vote function on target endpoint does two things: 
@@ -42,7 +44,6 @@ User Flow:
 
 Vote counter: We define vote counter such that we can tally the # of votes casted on the target endpoint have been processed on Inco endpoint. 
 
-
 Why do we need to send hash of ciphertext? 
 - So that we verify that the ciphertext sent by the server is matching the hash of ciphertext sent through hyperlane
 
@@ -50,11 +51,7 @@ Why do we need to send hash of ciphertext?
 
 
 
-
-
-
-
-Alternate Approach: 
+##Alternate Approach: 
 
 Send a signed message through the server using ECReover 
 
