@@ -32,7 +32,6 @@ Deploy:
 npx hardhat crosschain deploy base sepolia
 ```
 
-Here's the corrected version with proper grammar:
 
 ## User Flow:
 
