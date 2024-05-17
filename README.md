@@ -49,6 +49,8 @@ Vote counter: We define the vote counter such that we can tally the number of vo
 
 <img width="1080" alt="Screenshot 2024-05-17 at 9 47 15 PM" src="https://github.com/0xprinc/snapshotX/assets/32016969/eb49d70d-3421-45ef-8180-d09faf6d7726">
 
+<img width="1325" alt="Screenshot 2024-05-17 at 11 54 49 PM" src="https://github.com/0xprinc/snapshotX/assets/32016969/b3e4565e-6b2c-45fc-890f-9f92edc6a209">
+
 
 ## Alternate Approach: 
 
