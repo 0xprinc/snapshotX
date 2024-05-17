@@ -1,6 +1,6 @@
 ## Cross Chain Voting Server 
 
-command:
+Setup: 
 
 ```sh
 pnpm install 
@@ -44,9 +44,7 @@ npx hardhat crosschain deploy base sepolia
 
 Vote counter: We define vote counter such that we can tally the # of votes casted on the target endpoint have been processed on Inco endpoint. 
 
-Why do we need to send hash of ciphertext? 
-- So that we verify that the ciphertext sent by the server is matching the hash of ciphertext sent through hyperlane
-
+Why do we need to send hash of ciphertext: So that we verify that the ciphertext sent by the server is matching the hash of ciphertext sent through hyperlane
 
 
 
