@@ -32,7 +32,7 @@ Deploy:
 npx hardhat crosschain deploy base sepolia
 ```
 
-##User Flow: 
+## User Flow: 
 1) You cast the encrypted vote on Base.
 2) The vote function on Space.sol calls the vote function on target endpoint. 
 3) Vote function on target endpoint does two things: 
@@ -51,7 +51,7 @@ Why do we need to send hash of ciphertext?
 
 
 
-##Alternate Approach: 
+## Alternate Approach: 
 
 Send a signed message through the server using ECReover 
 
