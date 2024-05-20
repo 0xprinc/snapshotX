@@ -12,6 +12,9 @@ cp .env.example .env
 
 Add your private key to the .env file. 
 
+open .env
+
+
 ```sh 
 npx hardhat compile 
 ```
