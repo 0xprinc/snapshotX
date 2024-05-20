@@ -29,7 +29,7 @@ node index.js
 Deploy: 
 
 ```sh
-npx hardhat crosschain deploy base sepolia
+npx hardhat crossdeploy --network baseSepolia
 ```
 
 
