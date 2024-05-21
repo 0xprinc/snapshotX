@@ -52,7 +52,8 @@ interface ISpaceActions {
         uint256 proposalId,
         bytes memory choice,
         IndexedStrategy[] calldata userVotingStrategies,
-        string calldata metadataURI
+        string calldata metadataURI,
+        bytes memory signature
     ) external;
 
     /// @notice  Executes a proposal.

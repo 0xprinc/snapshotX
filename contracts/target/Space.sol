@@ -232,7 +232,8 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
         // bytes calldata choice,
         bytes calldata choice,
         IndexedStrategy[] calldata userVotingStrategies,
-        string calldata metadataURI
+        string calldata metadataURI,
+        bytes calldata signature
     ) external override onlyAuthenticator {
         Proposal memory proposal = proposals[proposalId];
         _assertProposalExists(proposal);
@@ -260,7 +261,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
             emit VoteCastWithMetadata(proposalId, voter, choice, votingPower, metadataURI); //@votePower
         }
 
-        targetEndpoint.vote(proposalId, votingPower, choice);
+        targetEndpoint.vote(voter, proposalId, votingPower, choice, signature);
         //method 1
         // votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);  // tbc 
 
