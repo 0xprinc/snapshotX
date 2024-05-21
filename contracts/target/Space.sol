@@ -261,17 +261,6 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
         }
 
         targetEndpoint.vote(proposalId, votingPower, choice);
-        //method 1
-        // votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);  // tbc 
-
-        // method 2
-        // ebool isAgainst = TFHE.eq(TFHE.asEuint8(choice), TFHE.asEuint8(0));
-        // ebool isFor = TFHE.eq(TFHE.asEuint8(choice), TFHE.asEuint8(1));
-        // ebool isAbstain = TFHE.eq(TFHE.asEuint8(choice), TFHE.asEuint8(2));
-
-        // votePower[proposalId][0] = TFHE.add(votePower[proposalId][0], TFHE.cmux(isAgainst, TFHE.asEuint32(votingPower), TFHE.asEuint32(0)));
-        // votePower[proposalId][1] = TFHE.add(votePower[proposalId][1], TFHE.cmux(isFor, TFHE.asEuint32(votingPower), TFHE.asEuint32(0)));
-        // votePower[proposalId][2] = TFHE.add(votePower[proposalId][2], TFHE.cmux(isAbstain, TFHE.asEuint32(votingPower), TFHE.asEuint32(0)));
     }
 
     /// @inheritdoc ISpaceActions
