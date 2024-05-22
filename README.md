@@ -8,7 +8,7 @@ Logic on Inco:
 - inco endpoint contract : used for receiving crosschain calls from target chain(Base)
 - Execution Strategy Module : which accesses the votePower mapping and executes
 
-Logic on Redstone: 
+Logic on Base: 
 - target Endpoint contract : used for sending data to inco endpoint contract
 - all other modules and Space.sol(main contract)
 
