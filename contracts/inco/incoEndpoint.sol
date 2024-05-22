@@ -23,27 +23,34 @@ contract IncoContract {
         return TFHE.reencrypt(votePower[proposalId][choice], publicKey, 0);
     }
 
-    function verify_sign(address voter, bytes memory signature, bytes memory choice) public view returns(bool){
-        // Split the signature into r, s and v components
+    function verify_sign(address voter, bytes memory signature, bytes memory data) public pure returns (address) {
         require(signature.length == 65, "Invalid signature length");
         bytes32 r;
         bytes32 s;
         uint8 v;
 
+        // Extract r, s and v from the signature
         assembly {
-            r := mload(add(signature, 32))
-            s := mload(add(signature, 64))
-            v := byte(0, mload(add(signature, 96)))
+            r := mload(add(signature, 0x20))
+            s := mload(add(signature, 0x40))
+            v := byte(0, mload(add(signature, 0x60)))
         }
 
+        // Compute the prefixed message hash
+        bytes32 messageHash = prefixed(keccak256(data));
+
         // Use ecrecover to recover the address of the signer
-        address signer = ecrecover(keccak256(choice), v, r, s);
-        return signer == voter;
+        address signer = ecrecover(messageHash, v, r, s);
+        return signer;
+    }
+
+    function prefixed(bytes32 hash) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", hash));
     }
 
 
     function vote(address voter, uint256 proposalId, uint32 votingPower, bytes memory choice, bytes memory signature) public {
-        require(verify_sign(voter, signature, choice),"not signed by voter");
+        // require(verify_sign(voter, signature, choice),"not signed by voter");
         votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);
     }
 

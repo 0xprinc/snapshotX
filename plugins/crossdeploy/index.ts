@@ -65,6 +65,27 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
       return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
+    function customArrayify(hexString: string): Uint8Array {
+      if (!hexString.startsWith("0x")) {
+          throw new Error("Invalid hex string: no 0x prefix");
+      }
+  
+      // Remove the 0x prefix
+      hexString = hexString.slice(2);
+  
+      if (hexString.length % 2 !== 0) {
+          throw new Error("Invalid hex string: length must be even");
+      }
+  
+      const byteArray = new Uint8Array(hexString.length / 2);
+      for (let i = 0; i < byteArray.length; i++) {
+          byteArray[i] = parseInt(hexString.substr(i * 2, 2), 16);
+      }
+  
+      return byteArray;
+  }
+  
+
     try {
       console.info("\nDeploying contracts on Inco...");
 
@@ -84,13 +105,35 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
       };
 
       let defaultSigners = await hre.ethers.getSigners();
-      const message = hre.ethers.utils.arrayify("0xdeadbeef");
-      const signn = await defaultSigners[0].signMessage("0xdeadbeef");
-      console.log(signn);
-      console.log(await defaultSigners[0].address);
 
-      const txn = await incoContractInstance.verify_sign(await defaultSigners[0].address, signn, "0xdeadbeef");
-      console.log("Transaction", txn);
+      // const message = hre.ethers.utils.arrayify("0xdeadbeef");
+      // const message = customArrayify("0xdeadbeef");
+      // console.log(message);
+
+      // const signn = await defaultSigners[0].signMessage(message);
+      // console.log(signn);
+      // console.log(await defaultSigners[0].address);
+
+      // Example message to sign
+      // const message = "0x1234567890deadbeaf";
+
+      // // Convert the message to a byte array using the custom arrayify function
+      // const byteArray = customArrayify(message);
+
+      // // Sign the byte array
+      // const signature = await defaultSigners[0].signMessage(byteArray);
+      // console.log("signer is : " + await defaultSigners[0].address);
+
+      // // Output the signature
+      // console.log("Signature:", signature);
+
+      // // For demonstration purposes: Recover the signer's address
+      // const signerAddress = hre.ethers.verifyMessage(byteArray, signature);
+      // console.log("Signer Address:", signerAddress);
+
+      // const txn = await incoContractInstance.verify_sign(await defaultSigners[0].address, signature, byteArray);
+      // console.log("Transaction", txn);
+
 
       const VanillaExecutionStrategyInstance: any = await VanillaExecutionStrategy.connect(signers[0]).deploy(
         signers[0].address,
@@ -245,13 +288,20 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
         const eChoiceFor2 = fhevmInstance.alice.encrypt8(1);
         const eChoiceAbstain = fhevmInstance.alice.encrypt8(0);
 
+        const signedAbstain = await defaultSigners[0].signMessage(eChoiceAbstain);
+        const signedFor1 = await defaultSigners[1].signMessage(eChoiceFor1);
+        const signedFor2 = await defaultSigners[2].signMessage(eChoiceFor2);
+        const signedAgainst = await defaultSigners[3].signMessage(eChoiceAgainst);
+
+        console.log(signedAbstain);
+        
         let data2voteAbstain = [
           await defaultSigners[0].address,
           1,
           eChoiceAgainst,
           [[0, "0x"]],
           "",
-          await defaultSigners[0].signMessage(eChoiceAbstain),
+          signedAbstain,
         ];
 
         let data2voteFor1 = [
@@ -260,7 +310,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
           eChoiceFor1,
           [[0, "0x"]],
           "",
-          await defaultSigners[1].signMessage(eChoiceFor1),
+          signedFor1,
         ];
         let data2voteFor2 = [
           await defaultSigners[2].address,
@@ -268,17 +318,16 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
           eChoiceFor2,
           [[0, "0x"]],
           "",
-          await defaultSigners[2].signMessage(eChoiceFor2),
+          signedFor2,
         ];
 
         let data2voteAgainst = [
           await defaultSigners[3].address,
           1,
           eChoiceAbstain,
-          // "0xdead",
           [[0, "0x"]],
           "",
-          await defaultSigners[1].signMessage(eChoiceAgainst),
+          signedAgainst,
         ];
 
         let eChoiceAbstainHash = hre.ethers.keccak256(eChoiceAbstain);
@@ -296,7 +345,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
         try {
           const txn = await VanillaAuthenticatorInstance.authenticate(
             SpaceAddr,
-            "0x954ee6da",
+            "0xb00fe890",
             AbiCoder.defaultAbiCoder().encode(
               ["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string", "bytes"],
               data2voteAgainst,
@@ -314,7 +363,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
         try {
           const txn = await VanillaAuthenticatorInstance.authenticate(
             SpaceAddr,
-            "0x954ee6da",
+            "0xb00fe890",
             AbiCoder.defaultAbiCoder().encode(
               ["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string", "bytes"],
               data2voteFor1,
@@ -332,7 +381,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
         try {
           const txn = await VanillaAuthenticatorInstance.authenticate(
             SpaceAddr,
-            "0x954ee6da",
+            "0xb00fe890",
             AbiCoder.defaultAbiCoder().encode(
               ["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string", "bytes"],
               data2voteFor2,
@@ -350,7 +399,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
         try {
           const txn = await VanillaAuthenticatorInstance.authenticate(
             SpaceAddr,
-            "0x954ee6da",
+            "0xb00fe890",
             AbiCoder.defaultAbiCoder().encode(
               ["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string", "bytes"],
               data2voteAbstain,
