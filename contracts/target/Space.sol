@@ -229,7 +229,6 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
     function vote(              // @inco
         address voter,
         uint256 proposalId,
-        // bytes calldata choice,
         bytes calldata choice,
         IndexedStrategy[] calldata userVotingStrategies,
         string calldata metadataURI,
