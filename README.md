@@ -1,11 +1,11 @@
 ## Description
-This repo demonstrates cross-chain private voting between Inco and Redstone. The logic of tallying and execution of the proposal remains on Inco. The rest of the logic (authenticating users, proposal validation strategies, voting strategies remains on the primary chain). We use Hyperlane 's mailbox address to pass messages. We have defined Incoendpoint.sol and Targetendpoint.sol to pass messages. 
+This repo demonstrates cross-chain private voting between Inco and Base. The logic of tallying and execution of the proposal remains on Inco. The rest of the logic (authenticating users, proposal validation strategies, voting strategies remains on the primary chain). We use Hyperlane and an offchain server to pass messages. We pass the hash of the ciphertext through hyperlane and we pass the actual ciphertext through the off-chain server which is verfied on Inco. We have defined Incoendpoint.sol and Targetendpoint.sol to pass messages. 
 
 The modifications we made earlier remain the same but we spilt the codebase in the following manner:
 
 Logic on Inco:
 - votePower mapping : encrypted values of aggregated votes of (For, against, abstain)
-- inco endpoint contract : used for receiving crosschain calls from target chain(redstone)
+- inco endpoint contract : used for receiving crosschain calls from target chain(Base)
 - Execution Strategy Module : which accesses the votePower mapping and executes
 
 Logic on Redstone: 
@@ -65,18 +65,4 @@ Vote counter: We define the vote counter such that we can tally the number of vo
 <img width="1221" alt="Screenshot 2024-05-22 at 4 46 33 PM" src="https://github.com/0xprinc/snapshotX/assets/32016969/63ce344d-f033-4616-ac74-b6249a640482">
 
 
-
-
-
-## Alternate Approach: 
-
-Send a signed message through the server using ECReover 
-
-What does ECRecover do? 
-
-If there is a message, you can sign them using a private key. This will generate a signature, 
-now you can send this signature. ECRecover(signature) = fetches you the public key of the private key. 
-So you can verify that the sender has actually signed the message. 
-We send a signature to the server and server will generate a public key. We have a set of trusted/whitelisted addresses.  
- 
  
