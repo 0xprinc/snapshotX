@@ -90,6 +90,8 @@ task(
 
     try {
       console.info("\nDeploying contracts on Inco...");
+
+      //Contracts Deployed on Inco: 
       
       const incoContractInstance: any = await IncoContract.connect(signers[0]).deploy();
       const incoContractAddr = await incoContractInstance.getAddress();
@@ -106,19 +108,6 @@ task(
         publicKey: "",
       };
 
-      // let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
-      // let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
-      // let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
-  
-      // console.log(For_votes);
-      // console.log(Abstain_votes);
-      // console.log(Against_votes);
-    
-      // console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
-      // console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
-      // console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
-  
-      // console.log(token.publicKey);
 
       const VanillaExecutionStrategyInstance: any = await VanillaExecutionStrategy.connect(signers[0]).deploy(signers[0].address, 1);   // random address as the address is of no use during testing
       const VanillaExecutionStrategyAddr = await VanillaExecutionStrategyInstance.getAddress();
@@ -127,6 +116,8 @@ task(
 
       console.info("\nDeploying contracts on baseSepolia...");
 
+
+      //Contracts Deployed on Base:
       const targetContractInstance: any = await TargetContract.connect(signers[1]).deploy();
       const targetContractAddr = await targetContractInstance.getAddress();
       await targetContractInstance.waitForDeployment();
@@ -164,14 +155,11 @@ task(
       ];
       console.log("data2voteAgainst - " + (AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAgainst)).length);
 
-      // let defaultsigners = await getSigners(hre.ethers);
-      // console.log("default signers -> " + defaultsigners.alice.address);
-      // let fhevmInstance = await createInstances(incoContractAddr, hre.ethers, defaultsigners);
-      // console.log("fhevmInstance -> " + fhevmInstance);
 
     {
         console.log("\ninitializing Space contract \n");
-        
+
+      
         let data0 : StrategyStruct = {
           addr: VanillaProposalValidationStrategyAddr,
           params: "0x"
@@ -279,7 +267,8 @@ task(
     console.log("\n voting \n");
 
     let defaultSigners = await hre.ethers.getSigners();
-    // console.log("default signers -> " + await defaultSigners[0].address);
+    
+    // Voting on Target Chain
 
     const eChoiceAgainst = fhevmInstance.alice.encrypt8(2);
     const eChoiceFor1 = fhevmInstance.alice.encrypt8(1);
@@ -380,10 +369,6 @@ task(
     console.log("waiting for 28 seconds...");
     await delay(28000);
 
-    // console.log("checking only for data2voteAbstainHash");
-    // console.log(await incoContractInstance.getCollectChoiceHashStatus(eChoiceAbstainHash));
-    // console.log(await incoContractInstance.getCollectChoiceData(eChoiceAbstainHash));
-
     console.log("waiting for 28 seconds...");
     await delay(28000);
 
@@ -398,12 +383,16 @@ task(
     console.log(For_votes);
     console.log(Abstain_votes);
     console.log(Against_votes);
-  
+    
+  // Verifying the vote count on Inco 
     console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
     console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
     console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
 
-    console.log("\n\n\n\n execution \n");
+    console.log("\n\n\n\n execution \n"); 
+
+   //Executing on Target Chain
+    
     let executionPayload = "0x";
     try {
       const txn = await SpaceInstance.execute(1, executionPayload);
@@ -417,32 +406,7 @@ task(
       // Handle the error appropriately (e.g., retry, notify user)
     }
 
-
-
-    // try {
-    //   let proposall = await SpaceInstance.proposals(1);
-    //   const proposalhash = hre.ethers.keccak256(AbiCoder.defaultAbiCoder().encode(["address", "uint32", "address", "uint32", "uint32", "uint8", "bytes32", "uint256"], proposall));
-    //   let _proposal : ProposalStruct = {
-    //     author: proposall[0],
-    //     startBlockNumber: proposall[1],
-    //     executionStrategy: proposall[2],
-    //     minEndBlockNumber: proposall[3],
-    //     maxEndBlockNumber: proposall[4],
-    //     finalizationStatus: proposall[5],
-    //     executionPayloadHash: proposall[6],
-    //     activeVotingStrategies: proposall[7]
-    //   };
-    //   const txn = await incoContractInstance.execute( proposalhash, _proposal);
-    //   console.log("Transaction hash:", txn.hash);
-
-    //   // Wait for 1 confirmation (adjust confirmations as needed)
-    //   await txn.wait(1);
-    //   console.log("execution successful!");
-    // } catch (error) {
-    //   console.error("Transaction failed:", error);
-    //   // Handle the error appropriately (e.g., retry, notify user)
-    // }
-
+    // Waiting for 30 seconds till the Execution is done on Inco
     console.log("waiting 30 seconds till the execution is done...");
     await delay(30000);
 
