@@ -9,7 +9,7 @@ import "fhevm/lib/TFHE.sol";
 import {Proposal} from "./types.sol";
 import { IExecutionStrategy } from "./interfaces/IExecutionStrategy.sol";
 
-// also we have to take care that the votes in inco and target chain are synced
+
 contract IncoContract {
 
     mapping(uint256 proposalId => mapping(uint8 choice => euint32 votePower)) public votePower;     // should be made private
