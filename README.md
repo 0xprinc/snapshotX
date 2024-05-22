@@ -1,6 +1,19 @@
-## Cross Chain Voting Server 
+## Description
+This repo demonstrates cross-chain private voting between Inco and Redstone. The logic of tallying and execution of the proposal remains on Inco. The rest of the logic (authenticating users, proposal validation strategies, voting strategies remains on the primary chain). We use Hyperlane 's mailbox address to pass messages. We have defined Incoendpoint.sol and Targetendpoint.sol to pass messages. 
 
-Setup: 
+The modifications we made earlier remain the same but we spilt the codebase in the following manner:
+
+Logic on Inco:
+- votePower mapping : encrypted values of aggregated votes of (For, against, abstain)
+- inco endpoint contract : used for receiving crosschain calls from target chain(redstone)
+- Execution Strategy Module : which accesses the votePower mapping and executes
+
+Logic on Redstone: 
+- target Endpoint contract : used for sending data to inco endpoint contract
+- all other modules and Space.sol(main contract)
+
+  
+## Setup: 
 
 ```sh
 pnpm install 
