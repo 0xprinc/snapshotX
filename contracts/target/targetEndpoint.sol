@@ -5,6 +5,7 @@ import {IMailbox} from "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import {IInterchainSecurityModule} from "@hyperlane-xyz/core/contracts/interfaces/IInterchainSecurityModule.sol";
 import {Proposal} from "./types.sol";
 
+@title Endpoint contract in Target chain during bridging of data
 contract TargetContract {
     // address public mailbox = 0x46e7416C63E71E8EA0f99A7F5033E6263c6e5138;
     address public mailbox = 0xE082D048F4B96e313D682255cE9aCA4BF8A527b1;        // base
@@ -15,9 +16,11 @@ contract TargetContract {
     event ReceivedMessage(uint32, bytes32, uint256, string);
 
     uint256 public votecounter;
+    // @dev event emitted during vote function is called and will be used to pass message to offchain server
     event counter_choice_vote(uint256, bytes);
 
     uint256 public executecounter;
+    // @dev event emitted during execute function is called and will be used to pass message to offchain server
     event counter_execute(uint256, bytes, bytes32);
 
 
@@ -31,6 +34,7 @@ contract TargetContract {
         // hook = IPostDispatchHook(_hook);
     }
 
+    /// @notice initialize the contract with the destination contract to send data to using hyperlane
     function initialize(address _destinationContract) public {
         destinationContract = _destinationContract;
     }
@@ -48,7 +52,10 @@ contract TargetContract {
         _;
     }
 
-    // handle function which is called by the mailbox to bridge votes from other chains
+    /// @notice handle function which is called by the mailbox to bridge votes from other chains
+    /// @param _origin The domain of the origin chain
+    /// @param _sender The address of the sender on the origin chain
+    /// @param _data The data sent by the _sender
     function handle(
         uint32 _origin,
         bytes32 _sender,
@@ -64,8 +71,8 @@ contract TargetContract {
         return address(uint160(uint256(_buf)));
     }
 
-    // specifying the function with a uint8
-    // 1 -> vote, 2-> execute
+    /// @notice Function to send the data through hyperlane to destination chain and address
+    /// @param data data to send also containing a uint8(1 -> vote, 2-> execute) function selector to know for a voting and an executing transaction
     function sendMessage(bytes memory data) payable public {
         IMailbox(mailbox).dispatch(domainId, addressToBytes32(destinationContract), data);
     }
@@ -75,6 +82,10 @@ contract TargetContract {
         return bytes32(uint256(uint160(_addr)));
     }
 
+    /// @notice initiating the vote cast on target chain and sending the relevant data to hyperlane and offchain server
+    /// @param proposalId id of the proposal to be voted on
+    /// @param votingPower number of votes the voter has to vote on
+    /// @param choice type of vote (For, Abstain, Against)
     function vote(uint256 proposalId, uint32 votingPower, bytes memory choice) public {
         bytes32 choiceHash = keccak256(choice);
         bytes memory data = abi.encode(uint8(1), proposalId, votingPower, abi.encode(choiceHash));
@@ -83,7 +94,10 @@ contract TargetContract {
         votecounter++;
     }
 
-    // hash of the executionPayload is also to be taken care of since it can also be of very large size in bytes length
+    /// @notice initiate the execution on target chain
+    /// @param proposalId id of the proposal to be voted on
+    /// @param proposal proposal related to the proposalId
+    /// @param executionPayload data to be used while execution
     function execute(uint256 proposalId, Proposal memory proposal, bytes memory executionPayload) public {
         bytes32 proposalhash = keccak256(abi.encode(proposal));
         bytes memory data = abi.encode(uint8(2), proposalId, proposalhash, executionPayload);
