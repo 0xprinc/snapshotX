@@ -35,14 +35,6 @@ contract IncoContract {
     mapping(bytes32 => bool[2]) public collectExecuteHashStatus;   // [bool(exists or not), bool(used one time or not)]
     mapping(bytes32 => executeData) public collectExecuteData;
     mapping(uint256 proposalId => bool) public isExecuted;
-    
-    struct executionlol{
-        bytes32 proposalhash;
-        uint256 proposalId;
-        bytes payload;
-    }
-
-    executionlol[] public loll;
 
     function getIsExecuted(uint256 proposalId) public view returns(bool){
         return isExecuted[proposalId];
@@ -98,7 +90,6 @@ contract IncoContract {
             collectChoiceData[choiceHash] = choiceData(proposalId, votingPower);
         } else if (selector == 2) {
             (, uint256 proposalId, bytes32 proposalhash, bytes memory executionPayload) = abi.decode(_data, (uint8, uint256, bytes32, bytes));
-            loll.push(executionlol(proposalhash, proposalId, executionPayload));
             require(collectExecuteHashStatus[proposalhash][0]!= true);
             collectExecuteHashStatus[proposalhash] = [true, false];
             collectExecuteData[proposalhash] = executeData(proposalId, executionPayload);
