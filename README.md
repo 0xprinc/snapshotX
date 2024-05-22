@@ -23,10 +23,9 @@ pnpm install
 cp .env.example .env 
 ``` 
 
-Add your private key to the .env file. 
-
-open .env
-
+```sh 
+open .env (Add your private key to the .env file.)
+``` 
 
 ```sh 
 npx hardhat compile 
