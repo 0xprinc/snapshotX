@@ -15,6 +15,8 @@ Logic on Base:
   
 ## Setup: 
 
+**Compile**
+
 ```sh
 pnpm install 
 cp .env.example .env 
