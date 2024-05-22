@@ -9,7 +9,7 @@ import "fhevm/lib/TFHE.sol";
 import {Proposal} from "./types.sol";
 import { IExecutionStrategy } from "./interfaces/IExecutionStrategy.sol";
 
-// also we have to take care that the votes in inco and target chain are synced
+
 contract IncoContract {
     address public mailbox = 0x18a2B6a086EE7d4070Cf675BDf27717d03258FcF;
     address public lastSender;
