@@ -17,17 +17,8 @@ Logic on Base:
 
 ```sh
 pnpm install 
-```
-
-```sh 
 cp .env.example .env 
-``` 
-
-```sh 
 open .env (Add your private key to the .env file.)
-``` 
-
-```sh 
 npx hardhat compile 
 ```
 
@@ -41,7 +32,7 @@ npm install
 node index.js 
 ``` 
 
-Deploy: 
+**Deploy**: 
 
 ```sh
 npx hardhat crossdeploy --network baseSepolia
