@@ -275,8 +275,6 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
         // to avoid reentrancy issues.
         proposal.finalizationStatus = FinalizationStatus.Executed;
 
-   );
-
         targetEndpoint.execute(proposalId, cachedProposal, executionPayload);
 
         emit ProposalExecuted(proposalId);

@@ -5,7 +5,7 @@ import {IMailbox} from "@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol";
 import {IInterchainSecurityModule} from "@hyperlane-xyz/core/contracts/interfaces/IInterchainSecurityModule.sol";
 import {Proposal} from "./types.sol";
 
-@title Endpoint contract in Target chain during bridging of data
+/// @title Endpoint contract in Target chain during bridging of data
 contract TargetContract {
     // address public mailbox = 0x46e7416C63E71E8EA0f99A7F5033E6263c6e5138;
     address public mailbox = 0xE082D048F4B96e313D682255cE9aCA4BF8A527b1;        // base

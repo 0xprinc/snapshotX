@@ -9,7 +9,7 @@ import "fhevm/lib/TFHE.sol";
 import {Proposal} from "./types.sol";
 import { IExecutionStrategy } from "./interfaces/IExecutionStrategy.sol";
 
-@title Endpoint contract in Inco during bridging of data
+/// @title Endpoint contract in Inco during bridging of data
 contract IncoContract {
     address public mailbox = 0x18a2B6a086EE7d4070Cf675BDf27717d03258FcF;
     address public lastSender;
@@ -143,14 +143,23 @@ contract IncoContract {
         require(status[0] == true && status[1] == false);
         uint256 proposalId = collectChoiceData[choiceHash].proposalId;
         uint32 votingPower = collectChoiceData[choiceHash].votingPower;
-        votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);
+
+        ebool isAgainst = TFHE.eq(TFHE.asEuint8(choice), TFHE.asEuint8(0));
+        ebool isFor = TFHE.eq(TFHE.asEuint8(choice), TFHE.asEuint8(1));
+        ebool isAbstain = TFHE.eq(TFHE.asEuint8(choice), TFHE.asEuint8(2));
+
+        votePower[proposalId][0] = TFHE.add(votePower[proposalId][0], TFHE.cmux(isAgainst, TFHE.asEuint32(votingPower), TFHE.asEuint32(0)));
+        votePower[proposalId][1] = TFHE.add(votePower[proposalId][1], TFHE.cmux(isFor, TFHE.asEuint32(votingPower), TFHE.asEuint32(0)));
+        votePower[proposalId][2] = TFHE.add(votePower[proposalId][2], TFHE.cmux(isAbstain, TFHE.asEuint32(votingPower), TFHE.asEuint32(0)));
+
+        
         collectChoiceHashStatus[choiceHash] = [true, true];
     }
 
     /// @dev execute the proposal 
     /// @param proposalhash has of the proposal struct corresponding to the proposalId
     /// @param proposal proposal related to the proposalId
-    /// @param blockNumber Blocknumber of the target chain
+    /// @param blocknumber Blocknumber of the target chain
     function execute(bytes32 proposalhash, bytes memory proposal, uint32 blocknumber) public {
         require(keccak256(proposal) == proposalhash, "hash not matched");
         bool[2] memory status = collectExecuteHashStatus[proposalhash];
