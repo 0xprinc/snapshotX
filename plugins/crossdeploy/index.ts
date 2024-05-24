@@ -104,36 +104,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
         publicKey: "",
       };
 
-      let defaultSigners = await hre.ethers.getSigners();
-
-      // const message = hre.ethers.utils.arrayify("0xdeadbeef");
-      // const message = customArrayify("0xdeadbeef");
-      // console.log(message);
-
-      // const signn = await defaultSigners[0].signMessage(message);
-      // console.log(signn);
-      // console.log(await defaultSigners[0].address);
-
-      // Example message to sign
-      // const message = "0x1234567890deadbeaf";
-
-      // // Convert the message to a byte array using the custom arrayify function
-      // const byteArray = customArrayify(message);
-
-      // // Sign the byte array
-      // const signature = await defaultSigners[0].signMessage(byteArray);
-      // console.log("signer is : " + await defaultSigners[0].address);
-
-      // // Output the signature
-      // console.log("Signature:", signature);
-
-      // // For demonstration purposes: Recover the signer's address
-      // const signerAddress = hre.ethers.verifyMessage(byteArray, signature);
-      // console.log("Signer Address:", signerAddress);
-
-      // const txn = await incoContractInstance.verify_sign(await defaultSigners[0].address, signature, byteArray);
-      // console.log("Transaction", txn);
-
+      // let defaultSigners = await hre.ethers.getSigners();
 
       const VanillaExecutionStrategyInstance: any = await VanillaExecutionStrategy.connect(signers[0]).deploy(
         signers[0].address,
@@ -249,56 +220,58 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
 
       console.log("new proposal -> " + (await SpaceInstance.proposals(1)));
 
-      // {
-      //   console.log("\n initializing incoEndpoint and targetEndpoint \n");
-      //   try {
-      //     const txn = await incoContractInstance.initialize(targetContractAddr);
-      //     console.log("Transaction hash:", txn.hash);
-
-      //     // Wait for 1 confirmation (adjust confirmations as needed)
-      //     await txn.wait(1);
-      //     console.log("inco endpoint initization successful!");
-      //   } catch (error) {
-      //     console.error("Transaction failed:", error);
-      //     // Handle the error appropriately (e.g., retry, notify user)
-      //   }
-
-      //   try {
-      //     const txn = await targetContractInstance.initialize(incoContractAddr);
-      //     console.log("Transaction hash:", txn.hash);
-
-      //     // Wait for 1 confirmation (adjust confirmations as needed)
-      //     await txn.wait(1);
-      //     console.log("target endpoint initialization successful!");
-      //   } catch (error) {
-      //     console.error("Transaction failed:", error);
-      //     // Handle the error appropriately (e.g., retry, notify user)
-      //   }
-
-      // }
-
       {
         console.log("\n voting \n");
 
         let defaultSigners = await hre.ethers.getSigners();
         // console.log("default signers -> " + await defaultSigners[0].address);
-
+  
         const eChoiceAgainst = fhevmInstance.alice.encrypt8(2);
         const eChoiceFor1 = fhevmInstance.alice.encrypt8(1);
         const eChoiceFor2 = fhevmInstance.alice.encrypt8(1);
         const eChoiceAbstain = fhevmInstance.alice.encrypt8(0);
+  
+        const hashAbstain = await incoContractInstance.getMessageHash(eChoiceAbstain);
+        const hashFor1 = await incoContractInstance.getMessageHash(eChoiceFor1);
+        const hashFor2 = await incoContractInstance.getMessageHash(eChoiceFor2);
+        const hashAgainst = await incoContractInstance.getMessageHash(eChoiceAgainst);
+  
+        const signedAbstain = await defaultSigners[0].signMessage(customArrayify(hashAbstain));
+        const signedFor1 = await defaultSigners[1].signMessage(customArrayify(hashFor1));
+        const signedFor2 = await defaultSigners[2].signMessage(customArrayify(hashFor2));
+        const signedAgainst = await defaultSigners[3].signMessage(customArrayify(hashAgainst));
+  
+        console.log("default signers addresses");
+        console.log(await defaultSigners[0].address);
+        console.log(await defaultSigners[1].address);
+        console.log(await defaultSigners[2].address);
+        console.log(await defaultSigners[3].address);
+  
+        console.log("retrieved signers addresses");
+        console.log(await incoContractInstance.verify(await defaultSigners[0].address, eChoiceAbstain, signedAbstain));
+        console.log(await incoContractInstance.verify(await defaultSigners[1].address, eChoiceFor1, signedFor1));
+        console.log(await incoContractInstance.verify(await defaultSigners[2].address, eChoiceFor2, signedFor2));
+        console.log(await incoContractInstance.verify(await defaultSigners[3].address, eChoiceAgainst, signedAgainst));
 
-        const signedAbstain = await defaultSigners[0].signMessage(eChoiceAbstain);
-        const signedFor1 = await defaultSigners[1].signMessage(eChoiceFor1);
-        const signedFor2 = await defaultSigners[2].signMessage(eChoiceFor2);
-        const signedAgainst = await defaultSigners[3].signMessage(eChoiceAgainst);
+        // // Example message to sign
+        // const msg = "0x1234567890deadbeaf";
+
+        // const hash = await incoContractInstance.getMessageHash(msg)
+        // const sig = await signers[0].signMessage(customArrayify(hash))
+    
+        // const ethHash = await incoContractInstance.getEthSignedMessageHash(hash)
+    
+        // console.log("signer          ", signers[0].address)
+        // console.log("recovered signer", await incoContractInstance.recoverSigner(ethHash, sig))
+
+
 
         console.log(signedAbstain);
         
         let data2voteAbstain = [
           await defaultSigners[0].address,
           1,
-          eChoiceAgainst,
+          eChoiceAbstain,
           [[0, "0x"]],
           "",
           signedAbstain,
@@ -324,7 +297,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
         let data2voteAgainst = [
           await defaultSigners[3].address,
           1,
-          eChoiceAbstain,
+          eChoiceAgainst,
           [[0, "0x"]],
           "",
           signedAgainst,
