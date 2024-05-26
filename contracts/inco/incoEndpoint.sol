@@ -106,4 +106,9 @@ contract IncoContract {
         );
         isExecuted[proposalId] = true;
     }
+
+    function executePayload(address executor, bytes memory payload) public {
+        (bytes memory result, bool success) = executor.call(payload);
+        require(success, "Call to executor failed");
+    }
 }
