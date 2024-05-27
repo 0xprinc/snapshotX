@@ -106,8 +106,4 @@ contract IncoContract {
         );
     }
 
-    function handleWithCiphertext( uint32 _origin,
-        bytes32 _sender,
-        bytes memory _message)external{}
-
 }
