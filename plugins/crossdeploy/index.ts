@@ -57,7 +57,9 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
     const VanillaAuthenticator = await hre.ethers.getContractFactory(hre.config.crossdeploy.contracts[3]);
     const VanillaProposalValidationStrategy = await hre.ethers.getContractFactory(hre.config.crossdeploy.contracts[4]);
     const VanillaVotingStrategy = await hre.ethers.getContractFactory(hre.config.crossdeploy.contracts[5]);
-    const VanillaExecutionStrategy = await hre.ethers.getContractFactory(hre.config.crossdeploy.contracts[6]);
+    const AvatarExecutionStrategy = await hre.ethers.getContractFactory(hre.config.crossdeploy.contracts[6]);
+    const mockAvatar = await hre.ethers.getContractFactory(hre.config.crossdeploy.contracts[7]);
+    const avatarExecutor = await hre.ethers.getContractFactory(hre.config.crossdeploy.contracts[8]);
 
     // let defaultSigners = await hre.ethers.getSigners();
     // console.log("default signers -> " + await defaultSigners[0]);
@@ -87,34 +89,18 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
   
 
     try {
-      console.info("\nDeploying contracts on Inco...");
-
-      const incoContractInstance: any = await IncoContract.connect(signers[0]).deploy();
-      const incoContractAddr = await incoContractInstance.getAddress();
-      await incoContractInstance.waitForDeployment();
-      console.info("IncoContract -> ", incoContractAddr);
-
-      let defaultsigners = await getSigners(hre.ethers);
-      // console.log("default signers -> " + defaultsigners.alice.address);
-      let fhevmInstance = await createInstances(incoContractAddr, hre.ethers, defaultsigners);
-      // console.log("fhevmInstance -> " + fhevmInstance);
-
-      const token = fhevmInstance.alice.getPublicKey(incoContractAddr) || {
-        signature: "",
-        publicKey: "",
-      };
-
-      // let defaultSigners = await hre.ethers.getSigners();
-
-      const VanillaExecutionStrategyInstance: any = await VanillaExecutionStrategy.connect(signers[0]).deploy(
-        signers[0].address,
-        1,
-      ); // random address as the address is of no use during testing
-      const VanillaExecutionStrategyAddr = await VanillaExecutionStrategyInstance.getAddress();
-      await VanillaExecutionStrategyInstance.waitForDeployment();
-      console.info("VanillaExecutionStrategy -> ", VanillaExecutionStrategyAddr);
 
       console.info("\nDeploying contracts on baseSepolia...");
+
+      const mockAvatarInstance: any = await mockAvatar.connect(signers[1]).deploy();
+      const mockAvatarAddr = await mockAvatarInstance.getAddress();
+      await mockAvatarInstance.waitForDeployment();
+      console.info("mockAvatar -> ", mockAvatarAddr);
+
+      const avatarExecutorInstance: any = await avatarExecutor.connect(signers[1]).deploy(mockAvatarAddr);
+      const avatarExecutorAddr = await avatarExecutorInstance.getAddress();
+      await avatarExecutorInstance.waitForDeployment();
+      console.info("avatarExecutor -> ", avatarExecutorAddr);
 
       const targetContractInstance: any = await TargetContract.connect(signers[1]).deploy();
       const targetContractAddr = await targetContractInstance.getAddress();
@@ -142,6 +128,36 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
       const VanillaVotingStrategyAddr = await VanillaVotingStrategyInstance.getAddress();
       await VanillaVotingStrategyInstance.waitForDeployment();
       console.info("VanillaVotingStrategy -> ", VanillaVotingStrategyAddr);
+
+
+      console.info("\nDeploying contracts on inco .....");
+
+      const incoContractInstance: any = await IncoContract.connect(signers[0]).deploy();
+      const incoContractAddr = await incoContractInstance.getAddress();
+      await incoContractInstance.waitForDeployment();
+      console.info("IncoContract -> ", incoContractAddr);
+
+      let defaultsigners = await getSigners(hre.ethers);
+      // console.log("default signers -> " + defaultsigners.alice.address);
+      let fhevmInstance = await createInstances(incoContractAddr, hre.ethers, defaultsigners);
+      // console.log("fhevmInstance -> " + fhevmInstance);
+
+      const token = fhevmInstance.alice.getPublicKey(incoContractAddr) || {
+        signature: "",
+        publicKey: "",
+      };
+
+      const AvatarExecutionStrategyInstance: any = await AvatarExecutionStrategy.connect(signers[0]).deploy(
+        signers[0].address,
+        signers[0].address,
+        [],
+        1,
+        avatarExecutorAddr,
+        incoContractAddr
+      ); // random address as the address is of no use during testing
+      const AvatarExecutionStrategyAddr = await AvatarExecutionStrategyInstance.getAddress();
+      await AvatarExecutionStrategyInstance.waitForDeployment();
+      console.info("AvatarExecutionStrategy -> ", AvatarExecutionStrategyAddr);
 
       // let defaultSigners = await hre.ethers.getSigners();
 
@@ -197,7 +213,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
 
       console.log("\n making a proposal \n");
 
-      let data2propose = [signers[1].address, "", [VanillaExecutionStrategyAddr, "0x"], "0x"];
+      let data2propose = [signers[1].address, "", [AvatarExecutionStrategyAddr, "0x"], "0x"];
 
       // console.log(AbiCoder.defaultAbiCoder().encode(["address", "string", "tuple(address, bytes)", "bytes"], data2propose));
 

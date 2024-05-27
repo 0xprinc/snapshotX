@@ -73,7 +73,7 @@ enum ProposalStatus {
 }
 
 /// @notice The set of possible choices for a vote.
-// enum Choice {            // @Choice
+// enum Choice {
 //     Against,
 //     For,
 //     Abstain

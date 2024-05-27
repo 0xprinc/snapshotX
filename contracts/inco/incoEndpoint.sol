@@ -107,8 +107,8 @@ contract IncoContract {
         isExecuted[proposalId] = true;
     }
 
+    event execute_payload(address, bytes);
     function executePayload(address executor, bytes memory payload) public {
-        (bytes memory result, bool success) = executor.call(payload);
-        require(success, "Call to executor failed");
+        emit execute_payload(executor, payload);
     }
 }

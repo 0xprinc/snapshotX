@@ -111,7 +111,9 @@ const config: HardhatUserConfig = {
       "VanillaAuthenticator",
       "VanillaProposalValidationStrategy",
       "VanillaVotingStrategy",
-      "VanillaExecutionStrategy",
+      "AvatarExecutionStrategy",
+      "mockAvatar",
+      "avatarExecutor"
     ],
     signer: process.env.PRIVATE_KEY || "",
   },

@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 import { IAvatar } from "../interfaces/IAvatar.sol";
 import { SimpleQuorumExecutionStrategy } from "./SimpleQuorumExecutionStrategy.sol";
 import { MetaTransaction, Proposal, ProposalStatus } from "../types.sol";
-
+import {IncoContract} from "../incoEndpoint.sol";
 import "fhevm/lib/TFHE.sol";
 
 /// @title Avatar Execution Strategy
@@ -24,15 +24,20 @@ contract AvatarExecutionStrategy is SimpleQuorumExecutionStrategy {
 
     /// @notice Address of the avatar that this module will pass transactions to.
     address public target;
+    address public executor;
+    IncoContract public incoInstance;
+
 
     /// @notice Constructor
     /// @param _owner Address of the owner of this contract.
     /// @param _target Address of the avatar that this module will pass transactions to.
     /// @param _spaces Array of whitelisted space contracts.
     /// @param _quorum The quorum required to execute a proposal.
-    constructor(address _owner, address _target, address[] memory _spaces, uint256 _quorum) {
+    constructor(address _owner, address _target, address[] memory _spaces, uint256 _quorum, address _executor, address _incoInstance) {
         bytes memory initParams = abi.encode(_owner, _target, _spaces, _quorum);
         setUp(initParams);
+        executor = _executor;
+        incoInstance = IncoContract(_incoInstance);
     }
 
     /// @notice Initialization function, should be called immediately after deploying a new proxy to this contract.
@@ -83,17 +88,7 @@ contract AvatarExecutionStrategy is SimpleQuorumExecutionStrategy {
     /// @notice Decodes and executes a batch of transactions from the avatar contract.
     /// @param payload The encoded transactions to execute.
     function _execute(bytes memory payload) internal {
-        MetaTransaction[] memory transactions = abi.decode(payload, (MetaTransaction[]));
-        for (uint256 i = 0; i < transactions.length; i++) {
-            bool success = IAvatar(target).execTransactionFromModule(
-                transactions[i].to,
-                transactions[i].value,
-                transactions[i].data,
-                transactions[i].operation
-            );
-            // If any transaction fails, the entire execution will revert.
-            if (!success) revert ExecutionFailed();
-        }
+        incoInstance.executePayload(executor, payload);
     }
 
     /// @notice Returns the trategy type string.

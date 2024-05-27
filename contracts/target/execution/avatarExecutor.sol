@@ -2,7 +2,13 @@ import { MetaTransaction} from "../types.sol";
 import "../interfaces/IAvatar.sol";
 
 contract avatarExecutor {
-    function execute(address target, bytes memory payload) public {
+
+    address public target;
+
+    constructor(address _target) {
+        target = _target;
+    }
+    function execute(bytes memory payload) public {
         MetaTransaction[] memory transactions = abi.decode(payload, (MetaTransaction[]));
         for (uint256 i = 0; i < transactions.length; i++) {
             bool success = IAvatar(target).execTransactionFromModule(

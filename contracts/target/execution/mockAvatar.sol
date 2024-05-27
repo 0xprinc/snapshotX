@@ -1,11 +1,7 @@
 import "../interfaces/IAvatar.sol";
 
 contract mockAvatar is IAvatar{
-    event EnabledModule(address module);
-    event DisabledModule(address module);
-    event ExecutionFromModuleSuccess(address indexed module);
-    event ExecutionFromModuleFailure(address indexed module);
-
+    
     mapping(address => bool) public modules;
 
     /// @dev Enables a module on the avatar.
@@ -42,12 +38,7 @@ contract mockAvatar is IAvatar{
         bytes memory data,
         Enum.Operation operation
     ) external returns (bool success){
-        if(modules[msg.sender]){
-            emit ExecutionFromModuleSuccess(msg.sender);
-            return true;
-        }
-        emit ExecutionFromModuleFailure(msg.sender);
-        return false;
+        (success, ) = to.call{value : value}(data);
     }
 
     /// @dev Allows a Module to execute a transaction and return data

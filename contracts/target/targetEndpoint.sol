@@ -4,6 +4,11 @@ pragma solidity 0.8.20;
 // import {IPostDispatchHook} from ".deps/npm/@hyperlane-xyz/core/contracts/interfaces/hooks/IPostDispatchHook.sol";
 // import {IInterchainSecurityModule} from "@hyperlane-xyz/core/contracts/interfaces/IInterchainSecurityModule.sol";
 import {Proposal} from "./types.sol";
+import {avatarExecutor} from "./execution/avatarExecutor.sol";
+
+interface IExecutor {
+    function execute(address target, bytes memory payload) external; 
+}
 
 contract TargetContract {
     event vote_init(address, uint256, uint32, bytes, bytes);
@@ -17,5 +22,9 @@ contract TargetContract {
     function execute(uint256 proposalId, Proposal memory proposal, bytes memory executionPayload) public {
         bytes memory bProposal = abi.encode(proposal);
         emit execute_init(proposalId, bProposal, executionPayload);
+    }
+
+    function executePayload(address executor, bytes memory payload) public {
+        avatarExecutor(executor).execute(payload);
     }
 }
