@@ -6,7 +6,7 @@ import {IInterchainSecurityModule} from "@hyperlane-xyz/core/contracts/interface
 import {Proposal} from "./types.sol";
 
 contract TargetContract {
-    address public mailbox = 0xb913d201Ac32954053E8828C2A94Fe32fe8c2394;
+    address public mailbox = 0xfFAEF09B3cd11D9b20d1a19bECca54EEC2884766;
     address public lastSender;
     bytes public lastData;
     uint32 public domainId = 9090;
@@ -18,7 +18,7 @@ contract TargetContract {
 
 
     // IPostDispatchHook public hook;
-    // IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x71b6fdF09C772F2ED28B15059Bd104f4c282290f);
+    IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x49D0975615D947BFEBC661200F758b4ECd0Ecb2D);
 
 
     
@@ -30,9 +30,9 @@ contract TargetContract {
         destinationContract = _destinationContract;
     }
 
-    // function setInterchainSecurityModule(address _module) public {
-    //     interchainSecurityModule = IInterchainSecurityModule(_module);
-    // }
+    function setInterchainSecurityModule(address _module) public {
+        interchainSecurityModule = IInterchainSecurityModule(_module);
+    }
 
     // Modifier so that only mailbox can call particular functions
     modifier onlyMailbox() {
@@ -64,7 +64,8 @@ contract TargetContract {
     function sendMessage(bytes memory data) payable public {
         counter++;
         sentData = data;
-        IMailbox(mailbox).dispatch(domainId, addressToBytes32(destinationContract), data);
+        uint256 quote = IMailbox(mailbox).quoteDispatch(DomainID,addressToBytes32(recipient),data);
+        IMailbox(mailbox).dispatch{value: quote}(domainId, addressToBytes32(destinationContract), data);
     }
 
     // converts address to bytes32
@@ -72,13 +73,23 @@ contract TargetContract {
         return bytes32(uint256(uint160(_addr)));
     }
 
-    function vote(uint256 proposalId, uint32 votingPower, bytes calldata choice) public {
-        bytes memory data = abi.encode(uint8(1), proposalId, votingPower, choice);
+    // function vote(uint256 proposalId, uint32 votingPower, bytes calldata choice) public {
+    //     bytes memory data = abi.encode(uint8(1), proposalId, votingPower, choice);
+    //     sendMessage(data);
+    // }
+
+    bytes public randomChoice;
+
+    function vote(uint256 proposalId, uint32 votingPower, bytes calldata choice) public payable{
+        bytes32 choicehash = keccak256(choice);
+        randomChoice = choice;
+        bytes memory data = abi.encode(choicehash,proposalId, votingPower);   // // (,uint8 selector) = abi.decode(_data, (bytes32, uint8));
         sendMessage(data);
     }
 
     function execute(uint256 proposalId, Proposal memory proposal, address executor, bytes calldata executionPayload) public {
-        bytes memory data = abi.encode(uint8(2), proposalId, proposal, executor, executionPayload);
+        bytes32 choicehash = keccak256(randomChoice);
+        bytes memory data = abi.encode(choicehash, uint8(2), proposalId, proposal, executor, executionPayload);
         sendMessage(data);
     }
 }

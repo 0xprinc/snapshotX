@@ -48,7 +48,7 @@ task(
     // console.info("Deploying to:", hre.network.name);
 
     const incoNetwork: Network = networks["inco"] as Network;
-    const targetNetwork: Network = networks["redstone"] as Network;
+    const targetNetwork: Network = networks["sepolia"] as Network;
     const nets = [incoNetwork, targetNetwork];
     
     [0, 1].map((i) => {
@@ -91,7 +91,7 @@ task(
 
     try {
 
-      console.info("\nDeploying contracts on Redstone...");
+      console.info("\nDeploying contracts on baseSepolia...");
 
       const targetContractInstance: any = await TargetContract.connect(signers[1]).deploy();
       const targetContractAddr = await targetContractInstance.getAddress();
@@ -257,6 +257,8 @@ task(
       ""
     ];
 
+
+
     let data2voteFor1 = [
       await defaultSigners[1].address,
       1,
@@ -284,7 +286,7 @@ task(
     // console.log("votePower before vote -> " + (await contractSpace.votePower(1, 2)).toString());
     console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
     try {
-      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAgainst));
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAgainst), {value : });
       console.log("Transaction hash:", txn.hash);
 
       // Wait for 1 confirmation (adjust confirmations as needed)
@@ -330,7 +332,7 @@ task(
     console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
 
 
-    const token = fhevmInstance.alice.getTokenSignature(incoContractAddr) || {
+    const token = fhevmInstance.alice.getPublicKey(incoContractAddr) || {
       signature: "",
       publicKey: "",
     };

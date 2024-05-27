@@ -23,6 +23,7 @@ const chainIds = {
   baseSepolia: networks.baseSepolia.chainId,
   edgeless: networks.edgeless.chainId,
   redstone: networks.redstone.chainId,
+  sepolia: networks.sepolia.chainId,
 };
 
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
@@ -43,6 +44,9 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
       break;
     case "redstone":
       jsonRpcUrl = networks.redstone.rpcUrl;
+      break;
+    case "sepolia":
+      jsonRpcUrl = networks.sepolia.rpcUrl;
       break;
   }
   return {
@@ -76,6 +80,7 @@ const config: HardhatUserConfig = {
     edgeless: getChainConfig("edgeless"),
     redstone: getChainConfig("redstone"),
     local: getChainConfig("local"),
+    sepolia: getChainConfig("sepolia"),
   },
   paths: {
     artifacts: "./artifacts",

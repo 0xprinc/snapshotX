@@ -255,7 +255,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
         bytes calldata choice,
         IndexedStrategy[] calldata userVotingStrategies,
         string calldata metadataURI
-    ) external override onlyAuthenticator {
+    ) external override onlyAuthenticator payable{
         Proposal memory proposal = proposals[proposalId];
         _assertProposalExists(proposal);
         if (block.number >= proposal.maxEndBlockNumber) revert VotingPeriodHasEnded();

@@ -10,11 +10,11 @@ import {Proposal} from "./types.sol";
 import { IExecutionStrategy } from "./interfaces/IExecutionStrategy.sol";
 
 contract IncoContract {
-    address public mailbox = 0x553422bAFC9e90d187aF74907B3DaeCf4bd25A69;
+    address public mailbox = 0xb2EF9249C4fDB9Eb4c105cE0C3AA47b33126A224;
     address public lastSender;
     bytes public lastData;
     uint public received;
-    uint32 public domainId = 17001;
+    uint32 public domainId = 84532;
 
     address public destinationContract;
     event ReceivedMessage(uint32, bytes32, uint256, string);
@@ -23,7 +23,7 @@ contract IncoContract {
 
 
     // IPostDispatchHook public hook;
-    IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x79411A19a8722Dd3D4DbcB0def6d10783237adad);
+    IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x49D0975615D947BFEBC661200F758b4ECd0Ecb2D);
 
 
     
@@ -59,17 +59,18 @@ contract IncoContract {
         bytes calldata _data
     ) external payable {
         emit ReceivedMessage(_origin, _sender, msg.value, string(_data));
-        lastSender = bytes32ToAddress(_sender);
-        lastData = _data;
-        received++;
-        uint8 selector = abi.decode(_data, (uint8));
-        if (selector == 1) {
-            (uint256 proposalId, uint32 votingPower, bytes memory choice) = abi.decode(_data, (uint256, uint32, bytes));
-            vote(proposalId, votingPower, choice);
-        } else if (selector == 2) {
-            (uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) = abi.decode(_data, (uint256, Proposal  , address , bytes));
-            execute(proposalId, proposal, executor, executionPayload);
-        }
+        // lastSender = bytes32ToAddress(_sender);
+        // lastData = _data;
+        // received++;
+        // (,uint8 selector) = abi.decode(_data, (bytes32, uint8));
+
+        // if (selector == 1) {
+        //     (uint256 proposalId, uint32 votingPower, bytes memory choice) = abi.decode(_data, (bytes32, uint8, uint256, uint32));
+        //     vote(proposalId, votingPower, choice);
+        // } else if (selector == 2) {
+        //     (uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) = abi.decode(_data, (uint256, Proposal  , address , bytes));
+        //     execute(proposalId, proposal, executor, executionPayload);
+        // }
     }
 
     // alignment preserving cast
@@ -108,6 +109,17 @@ contract IncoContract {
 
     function handleWithCiphertext( uint32 _origin,
         bytes32 _sender,
-        bytes memory _message)external{}
+        bytes memory _message) external{
+            (bytes memory message, bytes memory choice) = abi.decode(_message,(bytes , bytes));
 
+            // (,uint8 selector) = abi.decode(_data, (bytes32, uint8));
+            // if (selector == 1) {
+                (, uint256 proposalId, uint32 votingPower) = abi.decode(message, (bytes32, uint256, uint32));
+                vote(proposalId, votingPower, choice);
+            // } else if (selector == 2) {
+            //     (uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) = abi.decode(_data, (uint256, Proposal  , address , bytes));
+            //     execute(proposalId, proposal, executor, executionPayload);
+            // }
+        }
+        
 }

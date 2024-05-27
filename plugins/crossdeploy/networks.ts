@@ -35,5 +35,12 @@ export const networks = {
     explorer: "https://explorer.holesky.redstone.xyz/",
     interchainAccountRouterAddress: "0xA2Ab35739c0BAd110383E8f0706bE3745f861E49",
     interchainExecuteRouterAddress: "0x84a0c8e086A491Dff8E3aFaDa59856a15fe33E4E"
+  } as Network,
+  sepolia: {
+    rpcUrl: "https://eth-sepolia.g.alchemy.com/v2/79Tlik1NfzVh93MX3Yhm_DvrapFTP9bN",
+    chainId: 11155111,
+    explorer: "https://sepolia.etherscan.io",
+    interchainAccountRouterAddress: "0xA2Ab35739c0BAd110383E8f0706bE3745f861E49",
+    interchainExecuteRouterAddress: "0x84a0c8e086A491Dff8E3aFaDa59856a15fe33E4E"
   } as Network
 };
