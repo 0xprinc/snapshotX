@@ -35,9 +35,9 @@ contract IncoContract {
         destinationContract = _destinationContract;
     }
 
-    // function setInterchainSecurityModule(address _module) public {
-    //     interchainSecurityModule = IInterchainSecurityModule(_module);
-    // }
+     function setInterchainSecurityModule(address _module) public {
+         interchainSecurityModule = IInterchainSecurityModule(_module);
+     }
 
     function aggregatedVotes(uint256 proposalId) public view returns (uint256 votesFor, uint256 votesAgainst, uint256 votesAbstain) {
         return (TFHE.decrypt(votePower[proposalId][1]), TFHE.decrypt(votePower[proposalId][0]), TFHE.decrypt(votePower[proposalId][2]));
