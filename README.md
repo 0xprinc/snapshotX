@@ -30,14 +30,18 @@ Clone the server github repo:
 https://github.com/0xprinc/bridge-server 
 
 ```sh 
-npm install  
-node index.js 
-``` 
+npm install
+```
 
 **Deploy**: 
 
 ```sh
 npx hardhat crossdeploy --network baseSepolia
+```
+
+**Deploy the server**
+```sh
+node index.js [contract address][contract address]
 ```
 
 
