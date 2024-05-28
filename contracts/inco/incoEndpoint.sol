@@ -31,12 +31,12 @@ contract IncoContract {
     mapping(uint256 proposalId => mapping(uint8 choice => euint32 votePower)) public votePower;
 
     // contains the status of choice being updated
-    mapping(bytes => bool[2]) public collectChoiceHashStatus;   // [true, false] if updated first time(by hyperlane), and [true, true] if updated send time(by offchain-server)
+    mapping(bytes => bool[2]) public collectChoiceHashStatus;   // [true, false] if updated first time by hyperlane, and [true, true] if updated second time by offchain-server)
     // contains the data(proposalId, votePower) related to the choice during voting
     mapping(bytes => choiceData) public collectChoiceData;
 
     // contains the status of execution being done
-    mapping(bytes32 => bool[2]) public collectExecuteHashStatus;   // [true, false] if updated first time(by hyperlane), and [true, true] if updated send time(by offchain-server)
+    mapping(bytes32 => bool[2]) public collectExecuteHashStatus;   // [true, false] if updated first time by hyperlane, and [true, true] if updated second time by offchain-server)
     
     // contains the data(proposalId, executionPayload) related to the choice during voting
     mapping(bytes32 => executeData) public collectExecuteData;
