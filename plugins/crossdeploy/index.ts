@@ -149,7 +149,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
 
       const AvatarExecutionStrategyInstance: any = await AvatarExecutionStrategy.connect(signers[0]).deploy(
         signers[0].address,
-        signers[0].address,
+        mockAvatarAddr,
         [],
         1,
         avatarExecutorAddr,
