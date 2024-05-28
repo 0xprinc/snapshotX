@@ -79,9 +79,9 @@ contract AvatarExecutionStrategy is SimpleQuorumExecutionStrategy {
         uint32 blocknumber
     ) external override {
         ProposalStatus proposalStatus = getProposalStatus(proposal, votesFor, votesAgainst, votesAbstain, blocknumber);
-        // if ((proposalStatus != ProposalStatus.Accepted) && (proposalStatus != ProposalStatus.VotingPeriodAccepted)) {
-        //     revert InvalidProposalStatus(proposalStatus);
-        // }
+        if ((proposalStatus != ProposalStatus.Accepted) && (proposalStatus != ProposalStatus.VotingPeriodAccepted)) {
+            revert InvalidProposalStatus(proposalStatus);
+        }
         _execute(payload);
     }
 

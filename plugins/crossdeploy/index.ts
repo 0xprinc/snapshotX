@@ -90,7 +90,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
 
     try {
 
-      console.info("\nDeploying contracts on baseSepolia...");
+      console.info("\n 1) Deploying contracts on baseSepolia...");
 
       const mockAvatarInstance: any = await mockAvatar.connect(signers[1]).deploy();
       const mockAvatarAddr = await mockAvatarInstance.getAddress();
@@ -130,7 +130,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
       console.info("VanillaVotingStrategy -> ", VanillaVotingStrategyAddr);
 
 
-      console.info("\nDeploying contracts on inco .....");
+      console.info("\n 2) Deploying contracts on inco .....");
 
       const incoContractInstance: any = await IncoContract.connect(signers[0]).deploy();
       const incoContractAddr = await incoContractInstance.getAddress();
@@ -167,7 +167,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
       // console.log("fhevmInstance -> " + fhevmInstance);
 
       {
-        console.log("\ninitializing Space contract \n");
+        console.log("\n 3) Initializing Space contract \n");
 
         let data0: StrategyStruct = {
           addr: VanillaProposalValidationStrategyAddr,
@@ -208,10 +208,10 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
         // console.log("alice address -> " + addressSigner);
         // console.log("owner after initialize: " + await contractSpace.owner());
         // assert(addressSigner == contractSpace.owner());
-        console.log("space maxVotingDuration" + (await SpaceInstance.maxVotingDuration()));
+        // console.log("space maxVotingDuration" + (await SpaceInstance.maxVotingDuration()));
       }
 
-      console.log("\n making a proposal \n");
+      console.log("\n 4) Making a proposal \n");
 
       let data2propose = [signers[1].address, "", [AvatarExecutionStrategyAddr, "0x"], "0x"];
 
@@ -234,10 +234,10 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
         // Handle the error appropriately (e.g., retry, notify user)
       }
 
-      console.log("new proposal -> " + (await SpaceInstance.proposals(1)));
+      // console.log("new proposal -> " + (await SpaceInstance.proposals(1)));
 
       {
-        console.log("\n voting \n");
+        console.log("\n 5) Voting \n");
 
         let defaultSigners = await hre.ethers.getSigners();
         // console.log("default signers -> " + await defaultSigners[0].address);
@@ -257,17 +257,17 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
         const signedFor2 = await defaultSigners[2].signMessage(customArrayify(hashFor2));
         const signedAgainst = await defaultSigners[3].signMessage(customArrayify(hashAgainst));
   
-        console.log("default signers addresses");
-        console.log(await defaultSigners[0].address);
-        console.log(await defaultSigners[1].address);
-        console.log(await defaultSigners[2].address);
-        console.log(await defaultSigners[3].address);
+        // console.log("default signers addresses");
+        // console.log(await defaultSigners[0].address);
+        // console.log(await defaultSigners[1].address);
+        // console.log(await defaultSigners[2].address);
+        // console.log(await defaultSigners[3].address);
   
-        console.log("retrieved signers addresses");
-        console.log(await incoContractInstance.verify(await defaultSigners[0].address, eChoiceAbstain, signedAbstain));
-        console.log(await incoContractInstance.verify(await defaultSigners[1].address, eChoiceFor1, signedFor1));
-        console.log(await incoContractInstance.verify(await defaultSigners[2].address, eChoiceFor2, signedFor2));
-        console.log(await incoContractInstance.verify(await defaultSigners[3].address, eChoiceAgainst, signedAgainst));
+        // console.log("retrieved signers addresses");
+        // console.log(await incoContractInstance.verify(await defaultSigners[0].address, eChoiceAbstain, signedAbstain));
+        // console.log(await incoContractInstance.verify(await defaultSigners[1].address, eChoiceFor1, signedFor1));
+        // console.log(await incoContractInstance.verify(await defaultSigners[2].address, eChoiceFor2, signedFor2));
+        // console.log(await incoContractInstance.verify(await defaultSigners[3].address, eChoiceAgainst, signedAgainst));
 
         // // Example message to sign
         // const msg = "0x1234567890deadbeaf";
@@ -282,7 +282,7 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
 
 
 
-        console.log(signedAbstain);
+        // console.log(signedAbstain);
         
         let data2voteAbstain = [
           await defaultSigners[0].address,
@@ -324,13 +324,13 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
         let eChoiceFor2Hash = hre.ethers.keccak256(eChoiceFor2);
         let eChoiceAgainstHash = hre.ethers.keccak256(eChoiceAgainst);
 
-        console.log("eChoiceAbstainHash - " + eChoiceAbstainHash);
-        console.log("eChoiceFor1Hash - " + eChoiceFor1Hash);
-        console.log("eChoiceFor2Hash - " + eChoiceFor2Hash);
-        console.log("eChoiceAgainstHash - " + eChoiceAgainstHash);
+        // console.log("eChoiceAbstainHash - " + eChoiceAbstainHash);
+        // console.log("eChoiceFor1Hash - " + eChoiceFor1Hash);
+        // console.log("eChoiceFor2Hash - " + eChoiceFor2Hash);
+        // console.log("eChoiceAgainstHash - " + eChoiceAgainstHash);
 
         // console.log("votePower before vote -> " + (await contractSpace.votePower(1, 2)).toString());
-        console.log("current block number -> " + (await hre.ethers.provider.getBlockNumber()));
+        // console.log("current block number -> " + (await hre.ethers.provider.getBlockNumber()));
         try {
           const txn = await VanillaAuthenticatorInstance.authenticate(
             SpaceAddr,
@@ -404,26 +404,26 @@ task("crossdeploy", "Deploys the contract across all predefined networks").setAc
           // Handle the error appropriately (e.g., retry, notify user)
         }
 
-        console.log("\n\n checking the vote mapping in incoEndpoint \n");
+        console.log("\n\n 6) Checking the vote mapping in incoEndpoint \n");
 
         console.log("waiting for 56 seconds...");
         await delay(56000);
 
-        console.log("checking only for data2voteAbstainHash");
+        // console.log("checking only for data2voteAbstainHash");
 
         let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
         let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
         let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
 
-        console.log(For_votes);
-        console.log(Abstain_votes);
-        console.log(Against_votes);
+        // console.log(For_votes);
+        // console.log(Abstain_votes);
+        // console.log(Against_votes);
 
         console.log("For votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
         console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
         console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
 
-        console.log("\n\n\n\n execution \n");
+        console.log("\n\n\n\n 7) execution \n");
         let executionPayload = "0x";
         try {
           const txn = await SpaceInstance.execute(1, executionPayload);
