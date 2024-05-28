@@ -23,11 +23,31 @@ import fhevmjs, { FhevmInstance } from "fhevmjs";
 
 import { AbiCoder } from "ethers";
 
+import axios from 'axios';
+
 extendConfig(crossdeployConfigExtender);
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+async function postToken(ciphertext: string): Promise<void> {
+  const data = {
+      ciphertext: ciphertext
+  };
+
+  try {
+      const response = await axios.post('https://hyperlane-ccip.vercel.app/token', data, {
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      });
+      console.log(response.data);
+  } catch (error) {
+      console.error(error);
+  }
+}
+
 
 task(
   "crossdeploy",
@@ -91,7 +111,7 @@ task(
 
     try {
 
-      console.info("\nDeploying contracts on baseSepolia...");
+      console.info("\nDeploying contracts on sepolia...");
 
       const targetContractInstance: any = await TargetContract.connect(signers[1]).deploy();
       const targetContractAddr = await targetContractInstance.getAddress();
@@ -246,30 +266,40 @@ task(
   {
     console.log("\n voting \n");
 
+    const eAbstain = fhevmInstance.alice.encrypt8(2);
+    const eFor1 = fhevmInstance.alice.encrypt8(1);
+    const eFor2 = fhevmInstance.alice.encrypt8(1);
+    const eAgainst = fhevmInstance.alice.encrypt8(0);
+
+    postToken(eAbstain);
+    postToken(eFor1);
+    postToken(eFor2);
+    postToken(eAgainst);
+
     let defaultSigners = await hre.ethers.getSigners();
     // console.log("default signers -> " + await defaultSigners[0].address);
 
     let data2voteAbstain = [
       await defaultSigners[0].address,
       1,
-      fhevmInstance.alice.encrypt8(2),
+      eAbstain,
       [[0,"0x"]],
       ""
     ];
 
-
+    postToken
 
     let data2voteFor1 = [
       await defaultSigners[1].address,
       1,
-      fhevmInstance.alice.encrypt8(1),
+      eFor1,
       [[0,"0x"]],
       ""
     ];
     let data2voteFor2 = [
       await defaultSigners[2].address,
       1,
-      fhevmInstance.alice.encrypt8(1),
+      eFor2,
       [[0,"0x"]],
       ""
     ];
@@ -277,7 +307,7 @@ task(
     let data2voteAgainst = [
       await defaultSigners[3].address,
       1,
-      fhevmInstance.alice.encrypt8(0),
+      eAgainst,
       // "0xdead",
       [[0,"0x"]],
       ""
@@ -286,7 +316,7 @@ task(
     // console.log("votePower before vote -> " + (await contractSpace.votePower(1, 2)).toString());
     console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
     try {
-      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAgainst), {value : });
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAgainst), {value : 1000000000});
       console.log("Transaction hash:", txn.hash);
 
       // Wait for 1 confirmation (adjust confirmations as needed)
@@ -297,7 +327,7 @@ task(
       // Handle the error appropriately (e.g., retry, notify user)
     }
     try {
-      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor1));
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor1), {value : 1000000000});
       console.log("Transaction hash:", txn.hash);
 
       // Wait for 1 confirmation (adjust confirmations as needed)
@@ -308,7 +338,7 @@ task(
       // Handle the error appropriately (e.g., retry, notify user)
     }
     try {
-      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor2));
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteFor2), {value : 1000000000});
       console.log("Transaction hash:", txn.hash);
 
       // Wait for 1 confirmation (adjust confirmations as needed)
@@ -319,7 +349,7 @@ task(
       // Handle the error appropriately (e.g., retry, notify user)
     }
     try {
-      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAbstain));
+      const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAbstain), {value : 1000000000});
       console.log("Transaction hash:", txn.hash);
 
       // Wait for 1 confirmation (adjust confirmations as needed)

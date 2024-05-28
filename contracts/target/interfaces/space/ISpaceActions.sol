@@ -60,7 +60,7 @@ interface ISpaceActions {
         bytes calldata choice,
         IndexedStrategy[] calldata userVotingStrategies,
         string calldata metadataURI
-    ) external;
+    ) external payable;
 
     /// @notice  Executes a proposal.
     /// @param   proposalId  The proposal id.

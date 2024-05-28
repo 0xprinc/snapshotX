@@ -64,7 +64,7 @@ contract TargetContract {
     function sendMessage(bytes memory data) payable public {
         counter++;
         sentData = data;
-        uint256 quote = IMailbox(mailbox).quoteDispatch(DomainID,addressToBytes32(recipient),data);
+        uint256 quote = IMailbox(mailbox).quoteDispatch(domainId,addressToBytes32(destinationContract),data);
         IMailbox(mailbox).dispatch{value: quote}(domainId, addressToBytes32(destinationContract), data);
     }
 
