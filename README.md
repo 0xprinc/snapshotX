@@ -13,37 +13,32 @@ pnpm install
 
 ```sh 
 cp .env.example .env 
-``` 
-
-Add your private key to the .env file. 
-
-open .env
-
-
-```sh 
+open .env (Add your private key to the .env file. )
 npx hardhat compile 
 ```
 
 **Setup the server** 
 
-Clone the server github repo: 
+Clone the server github repo and switch to ECrecover branch: 
 https://github.com/0xprinc/bridge-server 
 
-```sh 
+```sh
 npm install  
-node index.js 
-``` 
+```
 
-Deploy: 
+**Deploy contracts**: 
 
 ```sh
 npx hardhat crossdeploy --network baseSepolia
 ```
+**Deploy the Server** 
+
+```sh
+node index.js <contract address inco> <contract address targetchain>
+``` 
 
 
-
-
-
+<img width="1256" alt="Screenshot 2024-05-28 at 6 26 11 PM" src="https://github.com/0xprinc/snapshotX/assets/32016969/9a6bf33d-190d-4fd7-a3c2-f926c12decfa">
 
  
  
