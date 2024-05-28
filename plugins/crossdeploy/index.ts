@@ -89,7 +89,7 @@ task(
     }
 
     try {
-      console.info("\nDeploying contracts on Inco...");
+      console.info("\n 1) Deploying contracts on Inco...");
 
       //Contracts Deployed on Inco: 
       
@@ -114,7 +114,7 @@ task(
       await VanillaExecutionStrategyInstance.waitForDeployment();
       console.info("VanillaExecutionStrategy -> ", VanillaExecutionStrategyAddr);
 
-      console.info("\nDeploying contracts on baseSepolia...");
+      console.info("\n 2) Deploying contracts on baseSepolia...");
 
 
       //Contracts Deployed on Base:
@@ -156,7 +156,7 @@ task(
 
 
     {
-        console.log("\ninitializing Space contract \n");
+        console.log("\n 3) Initializing Space contract \n");
 
       
         let data0 : StrategyStruct = {
@@ -204,7 +204,7 @@ task(
     }
 
   
-      console.log("\n making a proposal \n");
+      console.log("\n 4) Making a proposal \n");
   
       let data2propose =
         [
@@ -226,16 +226,16 @@ task(
   
         // Wait for 1 confirmation (adjust confirmations as needed)
         await txn.wait(1);
-        console.log("Transaction2 successful!");
+        console.log("proposal successful!");
       } catch (error) {
         console.error("Transaction failed:", error);
         // Handle the error appropriately (e.g., retry, notify user)
       }
       
-      console.log("new proposal -> " + await SpaceInstance.proposals(1));
+      // console.log("new proposal -> " + await SpaceInstance.proposals(1));
 
   {
-    console.log("\n initializing incoEndpoint and targetEndpoint \n");
+    console.log("\n 5) Initializing `incoEndpoint` and `targetEndpoint` \n");
     try {
       const txn = await incoContractInstance.initialize(targetContractAddr);
       console.log("Transaction hash:", txn.hash);
@@ -263,7 +263,7 @@ task(
   }
 
   {
-    console.log("\n voting \n");
+    console.log("\n 6) Voting \n");
 
     let defaultSigners = await hre.ethers.getSigners();
     
@@ -311,10 +311,10 @@ task(
     let eChoiceFor2Hash = hre.ethers.keccak256(eChoiceFor2);
     let eChoiceAgainstHash = hre.ethers.keccak256(eChoiceAgainst);
 
-    console.log("eChoiceAbstainHash - " + eChoiceAbstainHash);
-    console.log("eChoiceFor1Hash - " + eChoiceFor1Hash);
-    console.log("eChoiceFor2Hash - " + eChoiceFor2Hash);
-    console.log("eChoiceAgainstHash - " + eChoiceAgainstHash);
+    // console.log("eChoiceAbstainHash - " + eChoiceAbstainHash);
+    // console.log("eChoiceFor1Hash - " + eChoiceFor1Hash);
+    // console.log("eChoiceFor2Hash - " + eChoiceFor2Hash);
+    // console.log("eChoiceAgainstHash - " + eChoiceAgainstHash);
 
     // console.log("votePower before vote -> " + (await contractSpace.votePower(1, 2)).toString());
     // console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
@@ -324,7 +324,7 @@ task(
 
       // Wait for 1 confirmation (adjust confirmations as needed)
       await txn.wait(1);
-      console.log("Against successful!");
+      console.log("Against vote successful!");
     } catch (error) {
       console.error("Transaction failed:", error);
       // Handle the error appropriately (e.g., retry, notify user)
@@ -335,7 +335,7 @@ task(
 
       // Wait for 1 confirmation (adjust confirmations as needed)
       await txn.wait(1);
-      console.log("For1 successful!");
+      console.log("For vote successful!");
     } catch (error) {
       console.error("Transaction failed:", error);
       // Handle the error appropriately (e.g., retry, notify user)
@@ -346,7 +346,7 @@ task(
 
       // Wait for 1 confirmation (adjust confirmations as needed)
       await txn.wait(1);
-      console.log("For2 successful!");
+      console.log("For vote successful!");
     } catch (error) {
       console.error("Transaction failed:", error);
       // Handle the error appropriately (e.g., retry, notify user)
@@ -357,13 +357,13 @@ task(
 
       // Wait for 1 confirmation (adjust confirmations as needed)
       await txn.wait(1);
-      console.log("Abstain successful!");
+      console.log("Abstain vote successful!");
     } catch (error) {
       console.error("Transaction failed:", error);
       // Handle the error appropriately (e.g., retry, notify user)
     }
 
-    console.log("\n\n checking the vote mapping in incoEndpoint \n");
+    // console.log("\n\n checking the vote mapping in incoEndpoint \n");
 
     console.log("waiting for 28 seconds...");
     await delay(28000);
@@ -371,24 +371,24 @@ task(
     console.log("waiting for 28 seconds...");
     await delay(28000);
 
-    console.log("checking only for data2voteAbstainHash");
-    console.log(await incoContractInstance.getCollectChoiceHashStatus(eChoiceAbstainHash));
-    console.log(await incoContractInstance.getCollectChoiceData(eChoiceAbstainHash));
+    // console.log("checking only for data2voteAbstainHash");
+    // console.log(await incoContractInstance.getCollectChoiceHashStatus(eChoiceAbstainHash));
+    // console.log(await incoContractInstance.getCollectChoiceData(eChoiceAbstainHash));
 
     let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
     let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
     let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
 
-    console.log(For_votes);
-    console.log(Abstain_votes);
-    console.log(Against_votes);
+    // console.log(For_votes);
+    // console.log(Abstain_votes);
+    // console.log(Against_votes);
     
-  // Verifying the vote count on Inco 
+  console.log("\n 7) Verifying the vote count on Inco");
     console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
     console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
     console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
 
-    console.log("\n\n\n\n execution \n"); 
+    console.log("\n\n\n\n 8) Execution \n"); 
 
    //Executing on Target Chain
     
@@ -409,7 +409,7 @@ task(
     console.log("waiting 30 seconds till the execution is done...");
     await delay(30000);
 
-    console.log("is executed - " + await incoContractInstance.getIsExecuted(1));
+    console.log("isExecuted - " + await incoContractInstance.getIsExecuted(1));
 }
 
     } catch (err) {
