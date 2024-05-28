@@ -33,7 +33,7 @@ https://github.com/0xprinc/bridge-server
 npm install
 ```
 
-**Deploy**: 
+**Deploy the contracts**: 
 
 ```sh
 npx hardhat crossdeploy --network baseSepolia
@@ -41,7 +41,7 @@ npx hardhat crossdeploy --network baseSepolia
 
 **Deploy the server**
 ```sh
-node index.js [contract address][contract address]
+node index.js [contract address_inco][contract address_target chain]
 ```
 
 
