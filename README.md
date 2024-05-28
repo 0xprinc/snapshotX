@@ -39,7 +39,7 @@ npm install
 npx hardhat crossdeploy --network baseSepolia
 ```
 
-**Deploy the server**
+**Deploy the server:** (this has to be done simulateously with the contracts deployed before the voting function is called)
 ```sh
 node index.js [contract address_inco][contract address_targetchain]
 ```
