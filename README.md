@@ -38,7 +38,8 @@ node index.js <contract address inco> <contract address targetchain>
 ``` 
 
 
-<img width="1256" alt="Screenshot 2024-05-28 at 6 26 11 PM" src="https://github.com/0xprinc/snapshotX/assets/32016969/9a6bf33d-190d-4fd7-a3c2-f926c12decfa">
+<img width="1244" alt="Screenshot 2024-05-28 at 7 03 18 PM" src="https://github.com/0xprinc/snapshotX/assets/32016969/0063aa3b-2cc9-4876-8700-a6ea2669c959">
+
 
  
  
