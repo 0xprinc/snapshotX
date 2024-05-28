@@ -41,7 +41,7 @@ npx hardhat crossdeploy --network baseSepolia
 
 **Deploy the server**
 ```sh
-node index.js [contract address_inco][contract address_target chain]
+node index.js [contract address_inco][contract address_targetchain]
 ```
 
 
