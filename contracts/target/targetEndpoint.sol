@@ -18,7 +18,7 @@ contract TargetContract {
 
 
     // IPostDispatchHook public hook;
-    IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x49D0975615D947BFEBC661200F758b4ECd0Ecb2D);
+    // IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0xcAe8bD09aE9Ac21da7d1e189b5F7376aeCc82497);
 
 
     
@@ -30,9 +30,9 @@ contract TargetContract {
         destinationContract = _destinationContract;
     }
 
-    function setInterchainSecurityModule(address _module) public {
-        interchainSecurityModule = IInterchainSecurityModule(_module);
-    }
+    // function setInterchainSecurityModule(address _module) public {
+    //     interchainSecurityModule = IInterchainSecurityModule(_module);
+    // }
 
     // Modifier so that only mailbox can call particular functions
     modifier onlyMailbox() {
@@ -80,13 +80,14 @@ contract TargetContract {
 
     bytes public randomChoice;
 
-    function vote(uint256 proposalId, uint32 votingPower, bytes calldata choice) public payable{
+    function vote(uint256 proposalId, uint32 votingPower, bytes calldata choice) public payable{        // ciphertext
         bytes32 choicehash = keccak256(choice);
         randomChoice = choice;
-        bytes memory data = abi.encode(choicehash,proposalId, votingPower);   // // (,uint8 selector) = abi.decode(_data, (bytes32, uint8));
+        bytes memory data = abi.encode(choicehash,proposalId, votingPower);
         sendMessage(data);
     }
 
+    // ~ciphertext
     function execute(uint256 proposalId, Proposal memory proposal, address executor, bytes calldata executionPayload) public {
         bytes32 choicehash = keccak256(randomChoice);
         bytes memory data = abi.encode(choicehash, uint8(2), proposalId, proposal, executor, executionPayload);

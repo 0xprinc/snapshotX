@@ -23,7 +23,7 @@ contract IncoContract {
 
 
     // IPostDispatchHook public hook;
-    IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0x49D0975615D947BFEBC661200F758b4ECd0Ecb2D);
+    IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0xcAe8bD09aE9Ac21da7d1e189b5F7376aeCc82497);
 
 
     

@@ -282,7 +282,7 @@ contract Space is ISpace, Initializable, IERC4824, UUPSUpgradeable, OwnableUpgra
             emit VoteCastWithMetadata(proposalId, voter, choice, votingPower, metadataURI); //@votePower
         }
 
-        targetEndpoint.vote(proposalId, votingPower, choice);
+        targetEndpoint.vote{value: msg.value}(proposalId, votingPower, choice);
         //method 1
         // votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);  // tbc 
 

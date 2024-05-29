@@ -149,7 +149,6 @@ task(
       let defaultsigners = await getSigners(hre.ethers);
       // console.log("default signers -> " + defaultsigners.alice.address);
       let fhevmInstance = await createInstances(incoContractAddr, hre.ethers, defaultsigners);
-      // console.log("fhevmInstance -> " + fhevmInstance);
 
       const VanillaExecutionStrategyInstance: any = await VanillaExecutionStrategy.connect(signers[0]).deploy(signers[0].address, 1);   // random address as the address is of no use during testing
       const VanillaExecutionStrategyAddr = await VanillaExecutionStrategyInstance.getAddress();
@@ -271,10 +270,21 @@ task(
     const eFor2 = fhevmInstance.alice.encrypt8(1);
     const eAgainst = fhevmInstance.alice.encrypt8(0);
 
-    postToken(eAbstain);
-    postToken(eFor1);
-    postToken(eFor2);
-    postToken(eAgainst);
+    const bytesAbstain = AbiCoder.defaultAbiCoder().encode(["bytes"], [eAbstain]);
+    const bytesFor1 = AbiCoder.defaultAbiCoder().encode(["bytes"], [eFor1]);
+    const bytesFor2 = AbiCoder.defaultAbiCoder().encode(["bytes"], [eFor2]);
+    const bytesAgainst = AbiCoder.defaultAbiCoder().encode(["bytes"], [eAgainst]);
+
+    let paddedBytesAbstain : string = "0x" + bytesAbstain.slice(130, 33146);
+    let paddedBytesFor1 : string = "0x" + bytesFor1.slice(130, 33146);
+    let paddedBytesFor2 : string = "0x" + bytesFor2.slice(130, 33146);
+    let paddedBytesAgainst : string = "0x" + bytesAgainst.slice(130, 33146);
+
+    postToken(paddedBytesAbstain);
+    postToken(paddedBytesFor1);
+    postToken(paddedBytesFor2);
+    postToken(paddedBytesAgainst);
+
 
     let defaultSigners = await hre.ethers.getSigners();
     // console.log("default signers -> " + await defaultSigners[0].address);
@@ -286,8 +296,6 @@ task(
       [[0,"0x"]],
       ""
     ];
-
-    postToken
 
     let data2voteFor1 = [
       await defaultSigners[1].address,
@@ -382,7 +390,9 @@ task(
         console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
         console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
     }, 15000);
-    await delay(15000);
+    await delay(20000);
+    await delay(20000);
+    await delay(20000);
 
         let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
         let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
