@@ -93,7 +93,13 @@ contract IncoContract {
     }
 
     function vote(uint256 proposalId, uint32 votingPower, bytes memory choice) public {
-        votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))] = TFHE.add(votePower[proposalId][TFHE.decrypt(TFHE.asEuint8(choice))], votingPower);
+        ebool isAgainst = TFHE.eq(TFHE.asEuint8(choice), TFHE.asEuint8(0));
+        ebool isFor = TFHE.eq(TFHE.asEuint8(choice), TFHE.asEuint8(1));
+        ebool isAbstain = TFHE.eq(TFHE.asEuint8(choice), TFHE.asEuint8(2));
+
+        votePower[proposalId][0] = TFHE.add(votePower[proposalId][0], TFHE.cmux(isAgainst, TFHE.asEuint32(votingPower), TFHE.asEuint32(0)));
+        votePower[proposalId][1] = TFHE.add(votePower[proposalId][1], TFHE.cmux(isFor, TFHE.asEuint32(votingPower), TFHE.asEuint32(0)));
+        votePower[proposalId][2] = TFHE.add(votePower[proposalId][2], TFHE.cmux(isAbstain, TFHE.asEuint32(votingPower), TFHE.asEuint32(0)));
     }
 
     function execute(uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) public {
