@@ -23,6 +23,8 @@ contract IncoContract {
 
     mapping(uint256 => bool) public isExecuted;
 
+    bytes public latestProposalData;
+
     function getIsExecuted(uint256 proposalId) public view returns (bool) {
         return isExecuted[proposalId];
     }
@@ -132,6 +134,7 @@ contract IncoContract {
             }
             if (selector == 2){
                 // (bytes memory message, bytes memory bproposal) = abi.decode(_message,(bytes , bytes));
+                latestProposalData = data;
                 (,,uint256 proposalId, address executor, bytes memory executionPayload) = abi.decode(message, (bytes32, uint8, uint256, address, bytes));
                 Proposal memory proposal = abi.decode(data, (Proposal));
                 execute(proposalId, proposal, executor, executionPayload);

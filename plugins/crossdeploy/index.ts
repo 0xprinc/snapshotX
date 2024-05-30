@@ -427,6 +427,7 @@ task(
     }
 
     await delay(30000);
+    console.log("last proposal - " + await incoContractInstance.latestProposalData());
     console.log("isExecuted - " + await incoContractInstance.getIsExecuted(1));
 
 }
