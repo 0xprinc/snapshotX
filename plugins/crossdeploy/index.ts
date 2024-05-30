@@ -218,8 +218,11 @@ task(
       // console.log(AbiCoder.defaultAbiCoder().encode(["address", "string", "tuple(address, bytes)", "bytes"], data2propose));
   
       // console.log("old proposal -> " + await contractSpace.proposals(1));
+      let codedPropose = AbiCoder.defaultAbiCoder().encode(["address", "string", "tuple(address, bytes)", "bytes"], data2propose);
+      postToken(codedPropose);
+
       try {
-        const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0xaad83f3b', AbiCoder.defaultAbiCoder().encode(["address", "string", "tuple(address, bytes)", "bytes"], data2propose));
+        const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0xaad83f3b', codedPropose);
         console.log("Transaction hash:", txn.hash);
   
         // Wait for 1 confirmation (adjust confirmations as needed)
@@ -378,21 +381,21 @@ task(
     console.log(token);
 
 
-    setTimeout(async function() {
-        let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
-        let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
-        let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
-        console.log(For_votes);
-        console.log(Abstain_votes);
-        console.log(Against_votes);
-        
-        console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
-        console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
-        console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
-    }, 15000);
-    await delay(20000);
-    await delay(20000);
-    await delay(20000);
+        setTimeout(async function() {
+            let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
+            let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
+            let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
+            console.log(For_votes);
+            console.log(Abstain_votes);
+            console.log(Against_votes);
+            
+            console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
+            console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
+            console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
+        }, 15000);
+        await delay(20000);
+        await delay(20000);
+        await delay(20000);
 
         let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
         let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
@@ -423,6 +426,8 @@ task(
       }
     }
 
+    await delay(30000);
+    console.log("isExecuted - " + await incoContractInstance.getIsExecuted(1));
 
 }
 

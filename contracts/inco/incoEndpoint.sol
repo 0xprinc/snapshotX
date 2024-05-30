@@ -21,6 +21,12 @@ contract IncoContract {
 
     mapping(uint256 proposalId => mapping(uint8 choice => euint32 votePower)) private votePower;
 
+    mapping(uint256 => bool) public isExecuted;
+
+    function getIsExecuted(uint256 proposalId) public view returns (bool) {
+        return isExecuted[proposalId];
+    }
+
 
     // IPostDispatchHook public hook;
     IInterchainSecurityModule public interchainSecurityModule = IInterchainSecurityModule(0xcAe8bD09aE9Ac21da7d1e189b5F7376aeCc82497);
@@ -111,21 +117,25 @@ contract IncoContract {
             votePower[proposalId][2],
             executionPayload
         );
+        isExecuted[proposalId] = true;
     }
 
     function handleWithCiphertext( uint32 _origin,
         bytes32 _sender,
         bytes memory _message) external{
-            (bytes memory message, bytes memory choice) = abi.decode(_message,(bytes , bytes));
-
-            // (,uint8 selector) = abi.decode(_data, (bytes32, uint8));
-            // if (selector == 1) {
-                (, uint256 proposalId, uint32 votingPower) = abi.decode(message, (bytes32, uint256, uint32));
-                vote(proposalId, votingPower, choice);
-            // } else if (selector == 2) {
-            //     (uint256 proposalId, Proposal memory proposal, address executor, bytes memory executionPayload) = abi.decode(_data, (uint256, Proposal  , address , bytes));
-            //     execute(proposalId, proposal, executor, executionPayload);
-            // }
+            (bytes memory message, bytes memory data) = abi.decode(_message,(bytes , bytes));
+            (, uint8 selector) = abi.decode(message, (bytes32, uint8));
+            if (selector == 1){
+                // (bytes memory message, bytes memory choice) = abi.decode(_message,(bytes , bytes));
+                (,,uint256 proposalId, uint32 votingPower) = abi.decode(message, (bytes32, uint8, uint256, uint32));
+                vote(proposalId, votingPower, data);
+            }
+            if (selector == 2){
+                // (bytes memory message, bytes memory bproposal) = abi.decode(_message,(bytes , bytes));
+                (,,uint256 proposalId, address executor, bytes memory executionPayload) = abi.decode(message, (bytes32, uint8, uint256, address, bytes));
+                Proposal memory proposal = abi.decode(data, (Proposal));
+                execute(proposalId, proposal, executor, executionPayload);
+            }
         }
         
 }
