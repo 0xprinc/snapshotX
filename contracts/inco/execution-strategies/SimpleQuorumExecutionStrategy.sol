@@ -32,7 +32,8 @@ abstract contract SimpleQuorumExecutionStrategy is IExecutionStrategy, SpaceMana
         euint32 votesFor,
         euint32 votesAgainst,
         euint32 votesAbstain,
-        bytes memory payload
+        bytes memory payload,
+        uint32 blocknumber
     ) external virtual;
 
     /// @notice Returns the status of a proposal that uses a simple quorum.
@@ -46,18 +47,19 @@ abstract contract SimpleQuorumExecutionStrategy is IExecutionStrategy, SpaceMana
         Proposal memory proposal,
         euint32 votesFor,
         euint32 votesAgainst,
-        euint32 votesAbstain
+        euint32 votesAbstain,
+        uint32 blocknumber
     ) public view override returns (ProposalStatus) {
         bool accepted = _quorumReached(quorum, votesFor, votesAbstain) && _supported(votesFor, votesAgainst);
         if (proposal.finalizationStatus == FinalizationStatus.Cancelled) {
             return ProposalStatus.Cancelled;
         } else if (proposal.finalizationStatus == FinalizationStatus.Executed) {
             return ProposalStatus.Executed;
-        } else if (block.number < proposal.startBlockNumber) {
+        } else if (blocknumber < proposal.startBlockNumber) {
             return ProposalStatus.VotingDelay;
-        } else if (block.number < proposal.minEndBlockNumber) {
+        } else if (blocknumber < proposal.minEndBlockNumber) {
             return ProposalStatus.VotingPeriod;
-        } else if (block.number < proposal.maxEndBlockNumber) {
+        } else if (blocknumber < proposal.maxEndBlockNumber) {
             if (accepted) {
                 return ProposalStatus.VotingPeriodAccepted;
             } else {

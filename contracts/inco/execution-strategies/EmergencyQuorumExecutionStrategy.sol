@@ -41,7 +41,8 @@ abstract contract EmergencyQuorumExecutionStrategy is IExecutionStrategy, SpaceM
         euint32 votesFor,
         euint32 votesAgainst,
         euint32 votesAbstain,
-        bytes memory payload
+        bytes memory payload,
+        uint32 blocknumber
     ) external virtual override;
 
     // solhint-disable-next-line code-complexity
@@ -49,7 +50,8 @@ abstract contract EmergencyQuorumExecutionStrategy is IExecutionStrategy, SpaceM
         Proposal memory proposal,
         euint32 votesFor,
         euint32 votesAgainst,
-        euint32 votesAbstain
+        euint32 votesAbstain,
+        uint32 blocknumber
     ) public view override returns (ProposalStatus) {
         bool emergencyQuorumReached = _quorumReached(emergencyQuorum, votesFor, votesAbstain);
 
@@ -59,12 +61,12 @@ abstract contract EmergencyQuorumExecutionStrategy is IExecutionStrategy, SpaceM
             return ProposalStatus.Cancelled;
         } else if (proposal.finalizationStatus == FinalizationStatus.Executed) {
             return ProposalStatus.Executed;
-        } else if (block.number < proposal.startBlockNumber) {
+        } else if (blocknumber < proposal.startBlockNumber) {
             return ProposalStatus.VotingDelay;
         } else if (emergencyQuorumReached) {
             if (_supported(votesFor, votesAgainst)) {
                 // Proposal is supported
-                if (block.number < proposal.maxEndBlockNumber) {
+                if (blocknumber < proposal.maxEndBlockNumber) {
                     // New votes can still come in so return `VotingPeriodAccepted`.
                     return ProposalStatus.VotingPeriodAccepted;
                 } else {
@@ -73,7 +75,7 @@ abstract contract EmergencyQuorumExecutionStrategy is IExecutionStrategy, SpaceM
                 }
             } else {
                 // Proposal is not supported
-                if (block.number < proposal.maxEndBlockNumber) {
+                if (blocknumber < proposal.maxEndBlockNumber) {
                     // New votes might still come in so return `VotingPeriod`.
                     return ProposalStatus.VotingPeriod;
                 } else {
@@ -81,10 +83,10 @@ abstract contract EmergencyQuorumExecutionStrategy is IExecutionStrategy, SpaceM
                     return ProposalStatus.Rejected;
                 }
             }
-        } else if (block.number < proposal.minEndBlockNumber) {
+        } else if (blocknumber < proposal.minEndBlockNumber) {
             // Proposal has not reached minEndBlockNumber yet.
             return ProposalStatus.VotingPeriod;
-        } else if (block.number < proposal.maxEndBlockNumber) {
+        } else if (blocknumber < proposal.maxEndBlockNumber) {
             // block number is between minEndBlockNumber and maxEndBlockNumber
             if (accepted) {
                 return ProposalStatus.VotingPeriodAccepted;

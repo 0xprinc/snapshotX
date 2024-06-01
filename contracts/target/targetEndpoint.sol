@@ -80,7 +80,7 @@ contract TargetContract {
 
     function vote(uint256 proposalId, uint32 votingPower, bytes calldata choice) public payable{        // ciphertext
         bytes32 choicehash = keccak256(choice);
-        bytes memory data = abi.encode(choicehash,uint8(1), proposalId, votingPower);
+        bytes memory data = abi.encode(choicehash,uint8(0), proposalId, votingPower);
         sendMessage(data);
     }
 
@@ -88,7 +88,7 @@ contract TargetContract {
     function execute(uint256 proposalId, Proposal memory proposal, address executor, bytes calldata executionPayload) public {
         bytes memory bproposal = abi.encode(proposal);
         bytes32 proposalhash = keccak256(bproposal);
-        bytes memory data = abi.encode(proposalhash, uint8(2), proposalId, executor, executionPayload);
+        bytes memory data = abi.encode(proposalhash, uint8(1), proposal, proposalId, executor, executionPayload, block.number);
         sendMessage(data);
-    }
+    }       // hash  + uint8 + data
 }

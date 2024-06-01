@@ -219,7 +219,6 @@ task(
   
       // console.log("old proposal -> " + await contractSpace.proposals(1));
       let codedPropose = AbiCoder.defaultAbiCoder().encode(["address", "string", "tuple(address, bytes)", "bytes"], data2propose);
-      postToken(codedPropose);
 
       try {
         const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0xaad83f3b', codedPropose);
@@ -233,7 +232,12 @@ task(
         // Handle the error appropriately (e.g., retry, notify user)
       }
       
-      console.log("new proposal -> " + await SpaceInstance.proposals(1));
+      // console.log("new proposal -> " + await SpaceInstance.proposals(1));
+
+      let codedProposal = AbiCoder.defaultAbiCoder().encode(["address", "uint32", "address", "uint32", "uint32", "uint8", "bytes32", "uint256"], await SpaceInstance.proposals(1));
+      console.log("coded proposal - " + codedProposal);
+      console.log("hash  of proposal - " + hre.ethers.keccak256(codedProposal));
+      postToken(codedProposal);
   
   }
 
@@ -426,7 +430,7 @@ task(
       }
     }
 
-    await delay(30000);
+    await delay(40000);
     console.log("last proposal - " + await incoContractInstance.latestProposalData());
     console.log("isExecuted - " + await incoContractInstance.getIsExecuted(1));
 
