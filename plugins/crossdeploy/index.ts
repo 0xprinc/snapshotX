@@ -111,7 +111,7 @@ task(
 
     try {
 
-      console.info("\nDeploying contracts on sepolia...");
+      console.info("\n 1) Deploying contracts on sepolia...");
 
       const targetContractInstance: any = await TargetContract.connect(signers[1]).deploy();
       const targetContractAddr = await targetContractInstance.getAddress();
@@ -139,7 +139,7 @@ task(
       console.info("VanillaAuthenticator -> ", VanillaAuthenticatorAddr);
 
 
-      console.info("\nDeploying contracts on Inco...");
+      console.info("\n 2) Deploying contracts on Inco...");
       
       const incoContractInstance: any = await IncoContract.connect(signers[0]).deploy();
       const incoContractAddr = await incoContractInstance.getAddress();
@@ -156,7 +156,7 @@ task(
       console.info("VanillaExecutionStrategy -> ", VanillaExecutionStrategyAddr);
 
     {
-        console.log("\ninitializing Space contract \n");
+        console.log("\n 3) Initializing Space contract \n");
         
         let data0 : StrategyStruct = {
           addr: VanillaProposalValidationStrategyAddr,
@@ -195,15 +195,11 @@ task(
           console.error("Transaction failed:", error);
           // Handle the error appropriately (e.g., retry, notify user)
         }
-        // console.log("alice address -> " + addressSigner);
-        // console.log("owner after initialize: " + await contractSpace.owner());
-        // assert(addressSigner == contractSpace.owner());
-        console.log("space maxVotingDuration" + await SpaceInstance.maxVotingDuration());
     
     }
 
   {
-      console.log("\n making a proposal \n");
+      console.log("\n 4) Making a proposal \n");
   
       let data2propose =
         [
@@ -214,10 +210,7 @@ task(
           ],
           "0x",
         ];
-      
-      // console.log(AbiCoder.defaultAbiCoder().encode(["address", "string", "tuple(address, bytes)", "bytes"], data2propose));
-  
-      // console.log("old proposal -> " + await contractSpace.proposals(1));
+
       let codedPropose = AbiCoder.defaultAbiCoder().encode(["address", "string", "tuple(address, bytes)", "bytes"], data2propose);
 
       try {
@@ -235,14 +228,14 @@ task(
       // console.log("new proposal -> " + await SpaceInstance.proposals(1));
 
       let codedProposal = AbiCoder.defaultAbiCoder().encode(["address", "uint32", "address", "uint32", "uint32", "uint8", "bytes32", "uint256"], await SpaceInstance.proposals(1));
-      console.log("coded proposal - " + codedProposal);
-      console.log("hash  of proposal - " + hre.ethers.keccak256(codedProposal));
+      // console.log("coded proposal - " + codedProposal);
+      // console.log("hash  of proposal - " + hre.ethers.keccak256(codedProposal));
       postToken(codedProposal);
   
   }
 
   {
-    console.log("\n initializing incoEndpoint and targetEndpoint \n");
+    console.log("\n 5) Initializing incoEndpoint and targetEndpoint \n");
     try {
       const txn = await incoContractInstance.initialize(targetContractAddr);
       console.log("Transaction hash:", txn.hash);
@@ -270,7 +263,7 @@ task(
   }
 
   {
-    console.log("\n voting \n");
+    console.log("\n 6) Voting \n");
 
     const eAbstain = fhevmInstance.alice.encrypt8(2);
     const eFor1 = fhevmInstance.alice.encrypt8(1);
@@ -327,9 +320,7 @@ task(
       [[0,"0x"]],
       ""
     ];
-    console.log("data2voteAgainst - " + (AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAgainst)).length);
-    // console.log("votePower before vote -> " + (await contractSpace.votePower(1, 2)).toString());
-    console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
+
     try {
       const txn = await VanillaAuthenticatorInstance.authenticate(SpaceAddr, '0x954ee6da', AbiCoder.defaultAbiCoder().encode(["address", "uint256", "bytes", "tuple(uint8, bytes)[]", "string"], data2voteAgainst), {value : 1000000000});
       console.log("Transaction hash:", txn.hash);
@@ -374,39 +365,22 @@ task(
       console.error("Transaction failed:", error);
       // Handle the error appropriately (e.g., retry, notify user)
     }
-    console.log("current block number -> " + await hre.ethers.provider.getBlockNumber());
-
 
     const token = fhevmInstance.alice.getPublicKey(incoContractAddr) || {
       signature: "",
       publicKey: "",
     };
 
-    console.log(token);
-
-
-        setTimeout(async function() {
-            let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
-            let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
-            let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
-            console.log(For_votes);
-            console.log(Abstain_votes);
-            console.log(Against_votes);
-            
-            console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
-            console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
-            console.log("Against votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Against_votes));
-        }, 15000);
+        console.log("waiting for 50 seconds");
         await delay(20000);
         await delay(20000);
-        await delay(20000);
+        await delay(10000);
+      
+        console.log(" 7) Looking at the votes ")
 
         let For_votes = (await incoContractInstance.getVotePower(1, 1, token.publicKey)).toString();
         let Abstain_votes = (await incoContractInstance.getVotePower(1, 2, token.publicKey)).toString();
         let Against_votes = (await incoContractInstance.getVotePower(1, 0, token.publicKey)).toString();
-        console.log(For_votes);
-        console.log(Abstain_votes);
-        console.log(Against_votes);
         
         console.log("For votes -> " +     fhevmInstance.alice.decrypt(incoContractAddr, For_votes));
         console.log("Abstain votes -> " + fhevmInstance.alice.decrypt(incoContractAddr, Abstain_votes));
@@ -415,7 +389,7 @@ task(
 
 
     {
-      console.log("\n execution \n");
+      console.log("\n 8) Execution \n");
       let executionPayload = "0x";
       try {
         const txn = await SpaceInstance.execute(1, executionPayload);
@@ -430,8 +404,11 @@ task(
       }
     }
 
+    console.log("9) Checking for execution status");
+
+    console.log("waiting for 40 seconds");
     await delay(40000);
-    console.log("last proposal - " + await incoContractInstance.latestProposalData());
+    // console.log("last proposal - " + await incoContractInstance.latestProposalData());
     console.log("isExecuted - " + await incoContractInstance.getIsExecuted(1));
 
 }
