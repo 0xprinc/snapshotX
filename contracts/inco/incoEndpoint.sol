@@ -10,7 +10,8 @@ import {Proposal} from "./types.sol";
 import { IExecutionStrategy } from "./interfaces/IExecutionStrategy.sol";
 
 contract IncoContract {
-    address public mailbox = 0xb2EF9249C4fDB9Eb4c105cE0C3AA47b33126A224;
+    // address public mailbox = 0xb2EF9249C4fDB9Eb4c105cE0C3AA47b33126A224;
+    address public mailbox = 0x2f990fdD8318309DB1637aAbA145caA593616DB1;
     address public lastSender;
     bytes public lastData;
     uint public received;
