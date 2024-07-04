@@ -2,8 +2,7 @@
 
 What does ECRecover do? 
 
-If there is a message, you can sign them using a private key. This will generate a signature and now you can send this signature. ECRecover(signature) = fetches you the public key of the private key. So you can verify that the sender has actually signed the message. We send a signature to the server and server will generate a public key.  
-
+If there is a message, you can sign it using a private key. This will generate a signature, which you can then send. Using ECRecover(signature) fetches the public key associated with the private key. This allows you to verify that the sender has actually signed the message. We send the signature to the server, and the server will generate the public key.
 
 ## Setup: 
 
